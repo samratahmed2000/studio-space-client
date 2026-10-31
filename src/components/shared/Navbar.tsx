@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type MouseEvent } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { MenuIcon } from "lucide-react";
@@ -28,9 +28,49 @@ function isActivePath(pathname: string, href: string) {
     : pathname === href || pathname.startsWith(`${href}/`);
 }
 
+function getScrollBehavior(): ScrollBehavior {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ? "auto"
+    : "smooth";
+}
+
 const Navbar = () => {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+
+  const handleAnchorClick = (
+    event: MouseEvent<HTMLAnchorElement>,
+    href: string,
+    closeMenu = false,
+  ) => {
+    const isHome = href === "/";
+    const isHash = href.startsWith("#");
+
+    if (isHome && pathname !== "/") return;
+    if (isHash && !document.getElementById(href.slice(1))) return;
+    if (!isHome && !isHash) return;
+
+    event.preventDefault();
+    if (closeMenu) setIsOpen(false);
+
+    const scroll = () => {
+      if (isHome) {
+        window.scrollTo({ top: 0, behavior: getScrollBehavior() });
+      } else {
+        document
+          .getElementById(href.slice(1))
+          ?.scrollIntoView({ behavior: getScrollBehavior(), block: "start" });
+      }
+
+      window.history.replaceState(window.history.state, "", href);
+    };
+
+    if (closeMenu) {
+      window.setTimeout(scroll, 250);
+    } else {
+      scroll();
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-background/95 backdrop-blur-md">
@@ -50,6 +90,7 @@ const Navbar = () => {
               <Link
                 key={link.href}
                 href={link.href}
+                onClick={(event) => handleAnchorClick(event, link.href)}
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "rounded-full px-3 py-2 text-sm transition-colors",
@@ -113,7 +154,10 @@ const Navbar = () => {
                     <Link
                       key={link.href}
                       href={link.href}
-                      onClick={() => setIsOpen(false)}
+                      onClick={(event) => {
+                        handleAnchorClick(event, link.href, true);
+                        setIsOpen(false);
+                      }}
                       aria-current={active ? "page" : undefined}
                       className={cn(
                         "flex h-10 items-center rounded-lg px-3 text-sm transition-colors",

@@ -27,6 +27,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         "font-sans",
         geist.variable,
       )}
+      data-scroll-behavior="smooth"
     >
       <body className="min-h-full flex flex-col">
         <Navbar />
