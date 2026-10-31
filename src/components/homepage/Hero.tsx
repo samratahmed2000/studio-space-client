@@ -125,7 +125,7 @@ const Hero = () => {
             className="mt-5 text-4xl font-semibold tracking-tight text-balance text-white sm:text-6xl lg:text-7xl"
           >
             Find Your Perfect{" "}
-            <span className="text-white/60">Creative Space.</span>
+            <span className="text-destructive">Creative Space.</span>
           </h1>
 
           <p className="mt-6 max-w-lg text-base leading-7 text-white/75 sm:text-lg">
