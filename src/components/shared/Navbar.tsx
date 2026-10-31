@@ -73,10 +73,7 @@ const Navbar = () => {
           </Link>
           <Link
             href="/register"
-            className={cn(
-              buttonVariants({ variant: "destructive", size: "lg" }),
-              "px-4",
-            )}
+            className={cn(buttonVariants({ size: "lg" }), "px-4")}
           >
             Register
           </Link>
