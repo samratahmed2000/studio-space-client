@@ -7,17 +7,17 @@ const Logo = ({ onClick }: { onClick?: () => void }) => {
       href="/"
       onClick={onClick}
       aria-label="StudioSpace home"
-      className="flex w-fit items-center"
+      className="flex w-fit items-start gap-1.5"
     >
       <Image
         src="/assets/logo-icon.jpg"
         alt=""
-        width={36}
-        height={36}
+        width={28}
+        height={28}
         loading="eager"
-        className="size-9 rounded-full object-cover"
+        className="size-7 rounded-full object-cover"
       />
-      <span className="-ml-0.5 text-lg font-semibold tracking-tight text-black sm:text-xl dark:text-foreground">
+      <span className="-ml-0.5 text-2xl font-semibold tracking-tight text-black dark:text-foreground">
         StudioSpace
       </span>
     </Link>
