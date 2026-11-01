@@ -3,7 +3,7 @@ import { Separator } from "@/components/ui/separator";
 import Logo from "../../helper/Logo";
 import SocialLinks from "./SocialLinks";
 import NewsletterForm from "@/helper/NewsletterForm";
-import getCategory from "@/data-fetch/CategoryData";
+import getCategory from "@/data-fetch/getCategoryData";
 
 const navigation = [
   { label: "Home", href: "/" },

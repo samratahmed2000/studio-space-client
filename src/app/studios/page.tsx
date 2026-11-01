@@ -1,6 +1,6 @@
 import StudioCard from "@/components/studio/StudioCard";
 import { Badge } from "@/components/ui/badge";
-import getStudiosData from "@/data-fetch/StudiosData";
+import getStudiosData from "@/data-fetch/getStudiosData";
 import { Studio } from "@/types/type";
 
 const AllStudiosPage = async () => {

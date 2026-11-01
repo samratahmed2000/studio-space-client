@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Category } from "@/types/type";
-import getCategory from "@/data-fetch/CategoryData";
+import getCategory from "@/data-fetch/getCategoryData";
 import { useRouter } from "next/navigation";
 
 const AMENITIES_OPTIONS = [
