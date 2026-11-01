@@ -9,11 +9,12 @@ export interface Category {
 export interface Studio {
   _id: string;
   title: string;
-  category: string;
+  category: Category[] | string;
   hourlyRate: number;
   securityDeposit: number;
   maxCapacity: number;
   location: string;
   imageUrl: string;
+  description: string;
   amenitiesList: string[];
 }

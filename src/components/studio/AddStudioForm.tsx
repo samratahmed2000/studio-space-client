@@ -14,16 +14,19 @@ import {
 import { Category } from "@/types/type";
 import getCategory from "@/data-fetch/getCategoryData";
 import { useRouter } from "next/navigation";
+import { Textarea } from "../ui/textarea";
 
 const AMENITIES_OPTIONS = [
-  "Wi-Fi",
   "Changing Room",
   "Studio Lighting",
   "Cyclorama Wall",
-  "Air Conditioning",
-  "Free Parking",
-  "Soundproof",
-  "Makeup Station",
+  "Vocal Booth",
+  "Multi Mic Setup",
+  "Chroma Key Setup",
+  "MIDI Controllers",
+  "Soundproof Room",
+  "Storage Lockers",
+  "Exhibition ",
 ];
 
 const AddStudioForm = () => {
@@ -231,6 +234,20 @@ const AddStudioForm = () => {
             name="imageUrl"
             required
             placeholder="https://example.com"
+            className="border-border/70 focus-visible:ring-foreground/20"
+          />
+        </div>
+
+        {/* Description */}
+        <div className="grid gap-2">
+          <Label htmlFor="description" className="text-sm font-medium">
+            Description <span className="text-destructive">*</span>
+          </Label>
+          <Textarea
+            id="description"
+            name="description"
+            required
+            placeholder="Enter a brief description of the studio..."
             className="border-border/70 focus-visible:ring-foreground/20"
           />
         </div>
