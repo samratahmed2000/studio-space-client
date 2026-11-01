@@ -35,7 +35,7 @@ const StudioCategories = async () => {
               Browse Your <span className="text-destructive">Workspace</span>
             </h2>
 
-            <p className="mt-4 max-w-xl text-base leading-7 text-muted-foreground">
+            <p className="mt-1 max-w-xl text-base leading-6 text-muted-foreground">
               From photo studios to sound stages, find the right setting for
               your next shoot - every space is bookable by the hour.
             </p>

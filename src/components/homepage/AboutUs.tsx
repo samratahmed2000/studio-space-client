@@ -71,7 +71,7 @@ const AboutUs = () => {
               <span className="text-destructive">Creator</span> Support
             </h2>
 
-            <p className="mt-4 text-base leading-7 text-muted-foreground">
+            <p className="mt-1 text-base leading-6 text-muted-foreground">
               Book confidently with verified hosts, equipment protection, and
               24/7 dedicated support.
             </p>

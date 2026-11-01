@@ -67,7 +67,7 @@ const HowItWorks = () => {
             simple steps.
           </h2>
 
-          <p className="mt-4 max-w-xl text-base leading-7 text-muted-foreground">
+          <p className="mt-1 max-w-xl text-base leading-6 text-muted-foreground">
             Finding and booking your next creative space is simple. Here is how
             it works, from first search to final take.
           </p>

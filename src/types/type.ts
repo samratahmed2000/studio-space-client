@@ -9,7 +9,7 @@ export interface Category {
 export interface Studio {
   _id: string;
   title: string;
-  category: Category;
+  category: string;
   hourlyRate: number;
   securityDeposit: number;
   maxCapacity: number;

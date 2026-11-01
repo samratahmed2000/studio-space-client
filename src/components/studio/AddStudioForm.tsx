@@ -273,7 +273,7 @@ const AddStudioForm = () => {
         <Button
           type="submit"
           disabled={isLoading}
-          className="mt-2 w-full transition-colors bg-foreground text-background hover:bg-foreground/95"
+          className="mt-2 justify-self-center h-10 w-74 sm:h-11 md:h-12 transition-colors bg-foreground text-background hover:bg-foreground/95"
         >
           {isLoading ? "Adding New Studio..." : "Add New Studio"}
         </Button>

@@ -107,7 +107,7 @@ const Hero = () => {
         </CarouselContent>
       </Carousel>
 
-      <div className="relative z-10 mx-auto w-full max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-4 py-18 sm:px-6 lg:px-8">
         <div className="max-w-2xl">
           <Badge
             variant="outline"
