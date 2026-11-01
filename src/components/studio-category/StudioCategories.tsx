@@ -3,12 +3,11 @@ import { ArrowRightIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Category } from "@/types/type";
 import StudioCategoryCard from "./StudioCategoryCard";
+import getCategory from "@/data-fetch/CategoryData";
 
 const StudioCategories = async () => {
-  const res = await fetch(`http://localhost:8000/categories`);
-  const categories: Category[] = await res.json();
+  const categories = await getCategory();
 
   return (
     <section

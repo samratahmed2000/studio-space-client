@@ -17,8 +17,8 @@ const Logo = ({ onClick }: { onClick?: () => void }) => {
         loading="eager"
         className="size-7 rounded-full object-cover"
       />
-      <span className="-ml-0.5 text-2xl font-semibold tracking-tight text-black dark:text-foreground">
-        StudioSpace
+      <span className="-ml-0.5 text-2xl font-bold tracking-tight text-black dark:text-foreground">
+        Studio<span className="text-destructive">Space</span>
       </span>
     </Link>
   );

@@ -5,3 +5,15 @@ export interface Category {
   description: string;
   icon: string;
 }
+
+export interface Studio {
+  _id: string;
+  title: string;
+  category: Category;
+  hourlyRate: number;
+  securityDeposit: number;
+  maxCapacity: number;
+  location: string;
+  imageUrl: string;
+  amenitiesList: string[];
+}

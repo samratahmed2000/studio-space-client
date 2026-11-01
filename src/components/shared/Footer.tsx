@@ -1,30 +1,15 @@
-"use client";
-
-import { useState } from "react";
 import Link from "next/link";
-import { SendIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import Logo from "./Logo";
+import Logo from "../../helper/Logo";
 import SocialLinks from "./SocialLinks";
+import NewsletterForm from "@/helper/NewsletterForm";
+import getCategory from "@/data-fetch/CategoryData";
 
 const navigation = [
   { label: "Home", href: "/" },
   { label: "Explore Studios", href: "/studios" },
   { label: "How It Works", href: "/#how-it-works" },
   { label: "About Us", href: "/#about" },
-] as const;
-
-const popularCategories = [
-  { label: "Photo Studios", href: "/studios?category=photo-studios" },
-  {
-    label: "Cinema Sound Stages",
-    href: "/studios?category=cinema-sound-stages",
-  },
-  { label: "Podcast Rooms", href: "/studios?category=podcast-room" },
-  { label: "Music Suites", href: "/studios?category=music-suites" },
-  { label: "Art Workshops", href: "/studios?category=art-workshops" },
 ] as const;
 
 function FooterLink({ href, label }: { href: string; label: string }) {
@@ -38,17 +23,8 @@ function FooterLink({ href, label }: { href: string; label: string }) {
   );
 }
 
-const Footer = () => {
-  const [email, setEmail] = useState("");
-  const [subscribed, setSubscribed] = useState(false);
-
-  const handleSubscribe = (e: React.SubmitEvent<HTMLElement>) => {
-    e.preventDefault();
-    if (!email.trim()) return;
-
-    setSubscribed(true);
-    setEmail("");
-  };
+const Footer = async () => {
+  const popularCategories = await getCategory();
 
   return (
     <footer className="bg-muted/30">
@@ -96,8 +72,8 @@ const Footer = () => {
 
             <ul className="mt-4 space-y-3">
               {popularCategories.map((category) => (
-                <li key={category.href}>
-                  <FooterLink href={category.href} label={category.label} />
+                <li key={category._id}>
+                  <FooterLink href={category._id} label={category.title} />
                 </li>
               ))}
             </ul>
@@ -105,43 +81,8 @@ const Footer = () => {
         </div>
 
         {/* Newsletter */}
-        <div className="w-full max-w-md">
-          <h3 className="text-xs font-semibold tracking-wider text-foreground uppercase">
-            Newsletter
-          </h3>
-
-          <p className="mt-4 text-sm leading-6 text-muted-foreground">
-            New spaces, booking tips, and host news - once a month.
-          </p>
-
-          <form onSubmit={handleSubscribe} className="mt-4 flex flex-col gap-2">
-            <label htmlFor="footer-newsletter-email" className="sr-only">
-              Email address
-            </label>
-
-            <Input
-              id="footer-newsletter-email"
-              type="email"
-              required
-              autoComplete="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              className="h-10 bg-background px-3"
-            />
-
-            <Button type="submit" className="h-10 w-full gap-2">
-              Subscribe
-              <SendIcon aria-hidden="true" className="size-4" />
-            </Button>
-          </form>
-
-          <p
-            aria-live="polite"
-            className="mt-2 min-h-4 text-xs text-muted-foreground"
-          >
-            {subscribed ? "Thanks - you're on the list." : null}
-          </p>
+        <div>
+          <NewsletterForm />
         </div>
       </div>
 

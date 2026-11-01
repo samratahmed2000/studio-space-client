@@ -13,7 +13,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import Logo from "./Logo";
+import Logo from "../../helper/Logo";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -37,6 +37,7 @@ function getScrollBehavior(): ScrollBehavior {
 const Navbar = () => {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [activeHash, setActiveHash] = useState("");
 
   const handleAnchorClick = (
     event: MouseEvent<HTMLAnchorElement>,
@@ -63,6 +64,7 @@ const Navbar = () => {
       }
 
       window.history.replaceState(window.history.state, "", href);
+      setActiveHash(isHome ? "" : href);
     };
 
     if (closeMenu) {
@@ -84,7 +86,11 @@ const Navbar = () => {
           className="hidden items-center gap-1 md:flex"
         >
           {navLinks.map((link) => {
-            const active = isActivePath(pathname, link.href);
+            const active = link.href.startsWith("#")
+              ? pathname === "/" && activeHash === link.href
+              : link.href === "/"
+                ? pathname === "/" && activeHash === ""
+                : isActivePath(pathname, link.href);
 
             return (
               <Link
@@ -148,7 +154,11 @@ const Navbar = () => {
                 className="flex flex-col gap-1 px-4"
               >
                 {navLinks.map((link) => {
-                  const active = isActivePath(pathname, link.href);
+                  const active = link.href.startsWith("#")
+                    ? pathname === "/" && activeHash === link.href
+                    : link.href === "/"
+                      ? pathname === "/" && activeHash === ""
+                      : isActivePath(pathname, link.href);
 
                   return (
                     <Link
