@@ -1,10 +1,41 @@
 import StudioCard from "@/components/studio/StudioCard";
+import StudioSearch from "@/components/studio/StudioSearch";
 import { Badge } from "@/components/ui/badge";
 import getStudiosData from "@/data-fetch/getStudiosData";
 import { Studio } from "@/types/type";
 
-const AllStudiosPage = async () => {
+const getCategoryText = (category: Studio["category"]) => {
+  if (Array.isArray(category)) {
+    return category
+      .map((item) => [item.title, item.slug].filter(Boolean).join(" "))
+      .join(" ");
+  }
+
+  return category ?? "";
+};
+
+const matchesSearch = (studio: Studio, query: string) => {
+  const searchableText = [
+    studio.title,
+    studio.location,
+    studio.description,
+    getCategoryText(studio.category),
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  return searchableText.includes(query.toLowerCase());
+};
+
+const AllStudiosPage = async ({ searchParams }: PageProps<"/studios">) => {
+  const { search } = await searchParams;
+  const query = typeof search === "string" ? search.trim() : "";
+
   const studios: Studio[] = await getStudiosData();
+  const filteredStudios = query
+    ? studios.filter((studio) => matchesSearch(studio, query))
+    : studios;
 
   return (
     <main className="min-h-screen">
@@ -32,30 +63,52 @@ const AllStudiosPage = async () => {
           </p>
         </div>
 
+        {/* Search */}
+        <div className="mb-6 flex justify-end">
+          <div className="w-full max-w-xl">
+            <StudioSearch key={query} defaultValue={query} />
+          </div>
+        </div>
+
         {/* Results Count */}
-        <div className="mb-6 flex items-center justify-between border-b border-border/60 pb-4">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-border/60 pb-4">
           <p className="text-sm text-muted-foreground">
-            Total{" "}
-            <span className="font-semibold text-foreground">
-              {studios.length}
-            </span>{" "}
-            studios
+            {query ? (
+              <>
+                <span className="font-semibold text-foreground">
+                  {filteredStudios.length}
+                </span>{" "}
+                {filteredStudios.length === 1 ? "studio" : "studios"} found for{" "}
+                <span className="font-medium text-foreground">
+                  &ldquo;{query}&rdquo;
+                </span>
+              </>
+            ) : (
+              <>
+                Total{" "}
+                <span className="font-semibold text-foreground">
+                  {studios.length}
+                </span>{" "}
+                studios
+              </>
+            )}
           </p>
         </div>
 
         {/* Studio Grid */}
-        {studios.length > 0 ? (
+        {filteredStudios.length > 0 ? (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {studios.map((studio) => (
+            {filteredStudios.map((studio) => (
               <StudioCard key={studio._id} studio={studio} />
             ))}
           </div>
         ) : (
           <div className="flex min-h-64 flex-col items-center justify-center rounded-xl border border-dashed border-border p-8 text-center">
             <h2 className="text-lg font-semibold">No studios found</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              There are no studios available at the moment. Please check back
-              later.
+            <p className="mt-2 max-w-md text-sm text-muted-foreground">
+              {query
+                ? `We couldn't find any studios matching “${query}”. Try a different search.`
+                : "There are no studios available at the moment. Please check back later."}
             </p>
           </div>
         )}

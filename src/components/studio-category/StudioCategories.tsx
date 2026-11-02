@@ -43,7 +43,7 @@ const StudioCategories = async () => {
           </div>
 
           <Link
-            href="/studios"
+            href="/add-studio"
             className={cn(
               buttonVariants({ size: "lg" }),
               "group h-11 w-full shrink-0 gap-2 px-5 sm:w-auto",
@@ -56,15 +56,22 @@ const StudioCategories = async () => {
 
         {/* Category Grid */}
         <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-          {categories.map((category) => (
-            <Link
-              href={category._id}
-              key={category._id}
-              className="block rounded-xl focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
-            >
-              <StudioCategoryCard category={category} />
-            </Link>
-          ))}
+          {categories.map((category) => {
+            const categoryName = category.title ?? category.slug ?? "";
+            const href = categoryName
+              ? `/studios?search=${encodeURIComponent(categoryName)}`
+              : "/studios";
+
+            return (
+              <Link
+                href={href}
+                key={category._id}
+                className="block rounded-xl focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+              >
+                <StudioCategoryCard category={category} />
+              </Link>
+            );
+          })}
         </div>
       </div>
     </section>

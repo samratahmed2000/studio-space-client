@@ -18,6 +18,7 @@ import {
 import { toast } from "@/components/ui/toast";
 import GoogleAuthButton from "./GoogleAuthButton";
 import { signIn } from "@/lib/auth-client";
+import { getSafeRedirectPath, withRedirectTo } from "@/lib/redirect";
 import { EMAIL_PATTERN } from "@/lib/validation";
 
 type FormErrors = {
@@ -25,8 +26,14 @@ type FormErrors = {
   password?: string;
 };
 
-const LoginForm = () => {
+type LoginFormProps = {
+  redirectTo?: string;
+};
+
+const LoginForm = ({ redirectTo }: LoginFormProps) => {
   const router = useRouter();
+  const safeRedirectTo = getSafeRedirectPath(redirectTo);
+  const registerHref = withRedirectTo("/register", safeRedirectTo);
   const [errors, setErrors] = useState<FormErrors>({});
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -82,8 +89,7 @@ const LoginForm = () => {
         description: "You have been logged in successfully.",
       });
 
-      router.push("/");
-      router.refresh();
+      router.push(safeRedirectTo);
     } catch (error) {
       console.error("Failed to Login:", error);
 
@@ -167,13 +173,16 @@ const LoginForm = () => {
           </FieldSeparator>
 
           <Field>
-            <GoogleAuthButton disabled={isLoading} />
+            <GoogleAuthButton
+              disabled={isLoading}
+              callbackURL={safeRedirectTo}
+            />
           </Field>
 
           <p className="text-center text-sm text-muted-foreground">
             Don&apos;t have an account?{" "}
             <Link
-              href="/register"
+              href={registerHref}
               className="font-medium text-foreground underline-offset-4 hover:underline"
             >
               Register

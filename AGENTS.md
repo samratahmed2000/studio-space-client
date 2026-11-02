@@ -36,6 +36,7 @@ Next.js 16.4.3 App Router frontend. No tests and no CI. The API is the sibling r
 
 - Routes: `/`, `/studios`, `/studios/[id]`, `/add-studio`, and `/login` + `/register` (the `(dashboard)` and `(auth)` route groups add no URL segment).
 - Auth is better-auth mounted at `/api/auth/[...all]` (`src/lib/auth.ts`, Mongo adapter); client helpers come from `src/lib/auth-client.ts`. Auth forms live in `src/components/auth/`; password rules are in `src/lib/validation.ts` and must stay in sync with `emailAndPassword.minPasswordLength`. Google login only works when `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` are set.
+- Private routes are guarded by `src/proxy.ts`, which sends logged-out visitors to `/register?redirectTo=<path>` and remembers the path in the `studio-space-redirect` cookie. Registration signs the user out, sends them to `/login` (keeping `redirectTo`), and login returns them to that path; the Navbar profile dropdown only renders once a session exists. `src/lib/redirect.ts` sanitizes `redirectTo` against open redirects.
 - The root layout always renders `Navbar`, `Footer`, and `Toaster`.
 - `src/components/ui` holds generated shadcn primitives; app components live in `src/components/<domain>`; `src/helper` has `Logo` and `NewsletterForm`.
 - `PageProps` / `LayoutProps` are global generated types — don't import them. Next 16 route `params` / `searchParams` are Promises; await them.

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { Badge } from "@/components/ui/badge";
 import LoginForm from "@/components/auth/LoginForm";
+import { getSafeRedirectPath, REDIRECT_COOKIE } from "@/lib/redirect";
 
 export const metadata: Metadata = {
   title: "Login | StudioSpace",
@@ -8,7 +10,16 @@ export const metadata: Metadata = {
     "Login to your StudioSpace account to manage your bookings and studio listings.",
 };
 
-const LoginPage = () => {
+const LoginPage = async ({ searchParams }: PageProps<"/login">) => {
+  const [{ redirectTo }, cookieStore] = await Promise.all([
+    searchParams,
+    cookies(),
+  ]);
+
+  const safeRedirectTo =
+    getSafeRedirectPath(redirectTo, "") ||
+    getSafeRedirectPath(cookieStore.get(REDIRECT_COOKIE)?.value);
+
   return (
     <main className="flex flex-1 items-start justify-center bg-background px-4 py-8 sm:px-6 sm:py-16 lg:py-20">
       <div className="my-auto w-full max-w-xl">
@@ -33,7 +44,7 @@ const LoginPage = () => {
           </p>
         </div>
 
-        <LoginForm />
+        <LoginForm redirectTo={safeRedirectTo} />
       </div>
     </main>
   );

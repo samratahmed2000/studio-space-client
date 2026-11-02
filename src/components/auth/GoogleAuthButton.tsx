@@ -27,7 +27,13 @@ const GoogleIcon = () => (
   </svg>
 );
 
-const GoogleAuthButton = ({ disabled }: { disabled?: boolean }) => {
+const GoogleAuthButton = ({
+  disabled,
+  callbackURL = "/",
+}: {
+  disabled?: boolean;
+  callbackURL?: string;
+}) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleGoogleLogin = async () => {
@@ -35,7 +41,7 @@ const GoogleAuthButton = ({ disabled }: { disabled?: boolean }) => {
 
     const { error } = await signIn.social({
       provider: "google",
-      callbackURL: "/",
+      callbackURL,
     });
 
     if (error) {

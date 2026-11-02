@@ -55,7 +55,7 @@ const DeleteStudio = ({
 
     setOpen(false);
     setIsDeleting(false);
-    router.push("/studios");
+    router.push("/my-listings");
   };
 
   return (
@@ -76,9 +76,7 @@ const DeleteStudio = ({
               iconOnly ? `Delete ${studioDetails.title ?? "studio"}` : undefined
             }
             title={iconOnly ? "Delete studio" : undefined}
-            className={
-              iconOnly ? "cursor-pointer" : "h-9 gap-2 cursor-pointer"
-            }
+            className={iconOnly ? "cursor-pointer" : "h-9 gap-2 cursor-pointer"}
           >
             <Trash2Icon className={iconOnly ? "size-4" : "size-3.5"} />
             {!iconOnly && "Delete Studio"}

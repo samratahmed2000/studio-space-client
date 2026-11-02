@@ -18,7 +18,8 @@ import {
 } from "@/components/ui/field";
 import { toast } from "@/components/ui/toast";
 import GoogleAuthButton from "./GoogleAuthButton";
-import { signUp } from "@/lib/auth-client";
+import { signOut, signUp } from "@/lib/auth-client";
+import { withRedirectTo } from "@/lib/redirect";
 import { EMAIL_PATTERN, isValidUrl, validatePassword } from "@/lib/validation";
 
 type FormErrors = {
@@ -28,8 +29,13 @@ type FormErrors = {
   password?: string;
 };
 
-const RegisterForm = () => {
+type RegisterFormProps = {
+  redirectTo?: string;
+};
+
+const RegisterForm = ({ redirectTo }: RegisterFormProps) => {
   const router = useRouter();
+  const loginHref = withRedirectTo("/login", redirectTo);
   const [errors, setErrors] = useState<FormErrors>({});
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -98,11 +104,14 @@ const RegisterForm = () => {
       toast.add({
         type: "success",
         title: "Account Created",
-        description: "Welcome to StudioSpace! Your account is ready.",
+        description: "Your account is ready. Please log in to continue.",
       });
 
-      router.push("/");
-      router.refresh();
+      // better-auth signs the user in right after registering. Sign them out
+      // so the profile menu only appears after an explicit login.
+      await signOut();
+
+      router.push(loginHref);
     } catch (error) {
       console.error("Failed to Register:", error);
 
@@ -133,7 +142,7 @@ const RegisterForm = () => {
               name="name"
               type="text"
               autoComplete="name"
-              placeholder="Jane Doe"
+              placeholder="Ahmed"
               aria-invalid={Boolean(errors.name)}
               className="h-11 border-border/70 focus-visible:ring-foreground/20 sm:h-10"
             />
@@ -149,7 +158,7 @@ const RegisterForm = () => {
               name="email"
               type="email"
               autoComplete="email"
-              placeholder="you@example.com"
+              placeholder="me@mail.com"
               aria-invalid={Boolean(errors.email)}
               className="h-11 border-border/70 focus-visible:ring-foreground/20 sm:h-10"
             />
@@ -210,7 +219,7 @@ const RegisterForm = () => {
               disabled={isLoading}
             >
               {isLoading && <Spinner />}
-              {isLoading ? "Creating account..." : "Create account"}
+              {isLoading ? "Creating..." : "Register"}
             </Button>
           </Field>
 
@@ -219,13 +228,13 @@ const RegisterForm = () => {
           </FieldSeparator>
 
           <Field>
-            <GoogleAuthButton disabled={isLoading} />
+            <GoogleAuthButton disabled={isLoading} callbackURL={redirectTo} />
           </Field>
 
           <p className="text-center text-sm text-muted-foreground">
             Already have an account?{" "}
             <Link
-              href="/login"
+              href={loginHref}
               className="font-medium text-foreground underline-offset-4 hover:underline"
             >
               Login
