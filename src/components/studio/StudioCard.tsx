@@ -9,6 +9,17 @@ import { ArrowUpRight, Clock, MapPin, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+const getCategoryLabel = (category: Studio["category"]) => {
+  if (Array.isArray(category)) {
+    return category
+      .map((item) => item.title)
+      .filter(Boolean)
+      .join(", ");
+  }
+
+  return category ?? "";
+};
+
 const StudioCard = ({ studio }: { studio: Studio }) => {
   const router = useRouter();
   const {
@@ -21,6 +32,8 @@ const StudioCard = ({ studio }: { studio: Studio }) => {
     location,
     imageUrl,
   } = studio;
+
+  const categoryLabel = getCategoryLabel(category);
 
   return (
     <Link href={`/studios/${_id}`} key={_id}>
@@ -42,12 +55,14 @@ const StudioCard = ({ studio }: { studio: Studio }) => {
             </div>
           )}
 
-          <Badge
-            variant="secondary"
-            className="absolute left-4 top-4 rounded-full bg-background/90 px-3 backdrop-blur-sm"
-          >
-            {category}
-          </Badge>
+          {categoryLabel && (
+            <Badge
+              variant="secondary"
+              className="absolute left-4 top-4 rounded-full bg-background/90 px-3 backdrop-blur-sm"
+            >
+              {categoryLabel}
+            </Badge>
+          )}
         </div>
 
         {/* Studio Information */}

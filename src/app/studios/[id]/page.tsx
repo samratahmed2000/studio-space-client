@@ -6,14 +6,13 @@ import {
   CheckIcon,
   ChevronLeftIcon,
   MapPinIcon,
-  Trash2Icon,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { BookingCard } from "@/components/booking/BookingCard";
 import EditStudioDetails from "@/components/studio/EditStudioDetails";
+import DeleteStudio from "@/components/studio/DeleteStudio";
 
 const StudioDetailsPage = async ({
   params,
@@ -54,12 +53,11 @@ const StudioDetailsPage = async ({
           </Link>
 
           <div className="flex flex-wrap items-center gap-2">
+            {/* Edit Studio Details */}
             <EditStudioDetails studioDetails={studioDetails} />
 
-            <Button variant="destructive" size="sm" className="h-9 gap-2">
-              <Trash2Icon className="size-3.5" />
-              Delete Studio
-            </Button>
+            {/* Delete Studio */}
+            <DeleteStudio studioDetails={studioDetails} />
           </div>
         </div>
 

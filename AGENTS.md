@@ -23,19 +23,18 @@ Next.js 16.4.3 App Router frontend. No tests and no CI. The API is the sibling r
 
 ## Known pre-existing failures
 
-- `npx tsc --noEmit` and `npm run build` fail on type errors in `BookingCard`, `Footer`, `StudioCategories`, and `StudioCard`. Root cause: `Studio` fields are optional and `Studio.category` is `Category[] | string`; narrow before use instead of casting to `any`.
-- `npm run lint` reports 2 errors (`react-hooks/set-state-in-effect` in `src/components/ui/carousel.tsx` and `src/hooks/use-mobile.ts`) and 1 unused-variable warning. Leave them unless your task touches those files.
+- `npx tsc --noEmit` is clean. `npm run lint` reports 2 `react-hooks/set-state-in-effect` errors in `src/components/ui/carousel.tsx` and `src/hooks/use-mobile.ts`; leave them unless your task touches those files.
 
 ## Setup / data flow
 
 - Requires `.env` with `NEXT_PUBLIC_API_URL` (gitignored; currently `http://localhost:8000`).
 - `src/data-fetch/*` are server-side fetch helpers (default exports; `.tsx` files with no JSX) using `next: { revalidate: 60 }`. Async server components call them directly. Because of that cache, `router.refresh()` alone serves stale data after a mutation — invalidate with `revalidatePath` in a server action.
-- Mutations go through the server actions in `src/actions/studioActions.ts` (POST `/add-studio`, PATCH `/studios/:id`), which call `revalidatePath` for `/`, `/studios`, and the edited detail page. Client forms call them from submit handlers, then `router.refresh()` / `router.push()`. There is no form or validation library.
+- Mutations go through the server actions in `src/actions/studioActions.ts` (POST `/add-studio`, PATCH `/studios/:id`, DELETE `/studios/:id`), which call `revalidatePath` for `/`, `/studios`, and (for updates) the edited detail page. Client components call them from handlers, then `router.refresh()` / `router.push()`. There is no form or validation library.
 - The companion API has no dev script: run `npm start` in `../studio-space-server` (plain `node`, needs `MONGODB_URI`).
 
 ## Layout / routing
 
-- Routes: `/`, `/studios`, `/studios/[id]`, `/add-studio` (the `(dashboard)` route group adds no URL segment), and a `/studios/edit/[id]` stub. `Navbar` links to `/login` and `/register`, which do not exist.
+- Routes: `/`, `/studios`, `/studios/[id]`, and `/add-studio` (the `(dashboard)` route group adds no URL segment). `Navbar` links to `/login` and `/register`, which do not exist.
 - The root layout always renders `Navbar`, `Footer`, and `Toaster`.
 - `src/components/ui` holds generated shadcn primitives; app components live in `src/components/<domain>`; `src/helper` has `Logo` and `NewsletterForm`.
 - `PageProps` / `LayoutProps` are global generated types — don't import them. Next 16 route `params` / `searchParams` are Promises; await them.

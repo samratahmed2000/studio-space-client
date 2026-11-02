@@ -69,7 +69,7 @@ const NewsletterForm = () => {
 
           <Button
             type="submit"
-            className="h-10 w-full gap-2"
+            className="h-10 w-full gap-2 cursor-pointer"
             disabled={isLoading}
           >
             {isLoading ? "Subscribing..." : "Subscribe"}

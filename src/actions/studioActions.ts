@@ -4,9 +4,7 @@ import { revalidatePath } from "next/cache";
 
 type StudioPayload = Record<string, unknown>;
 
-type ActionResult =
-  | { success: true }
-  | { success: false; message: string };
+type ActionResult = { success: true } | { success: false; message: string };
 
 const getErrorMessage = async (res: Response, fallback: string) => {
   const errorData: { message?: string } | null = await res
@@ -73,6 +71,43 @@ export async function updateStudio(
     return { success: true };
   } catch (error) {
     console.error("Failed to update studio:", error);
+    return { success: false, message: "Could not reach the studio API." };
+  }
+}
+
+export async function deleteStudio(id: string): Promise<ActionResult> {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/studios/${id}`,
+      {
+        method: "DELETE",
+      },
+    );
+
+    if (!res.ok) {
+      return {
+        success: false,
+        message: await getErrorMessage(res, "Failed to delete studio"),
+      };
+    }
+
+    const data: { deletedCount?: number } | null = await res
+      .json()
+      .catch(() => null);
+
+    if (data?.deletedCount === 0) {
+      return {
+        success: false,
+        message: "Studio not found or already deleted.",
+      };
+    }
+
+    revalidatePath("/");
+    revalidatePath("/studios");
+
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to delete studio:", error);
     return { success: false, message: "Could not reach the studio API." };
   }
 }

@@ -111,7 +111,7 @@ const EditStudioDetails = ({ studioDetails }: EditStudioDetailsProps) => {
     >
       <DialogTrigger
         render={
-          <Button variant="outline" size="lg" className="gap-2">
+          <Button variant="outline" size="lg" className="gap-2 cursor-pointer">
             <EditIcon className="size-4" />
             Edit Studio
           </Button>

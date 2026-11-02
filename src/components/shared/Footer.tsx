@@ -73,7 +73,10 @@ const Footer = async () => {
             <ul className="mt-4 space-y-3">
               {popularCategories.map((category) => (
                 <li key={category._id}>
-                  <FooterLink href={category._id} label={category.title} />
+                  <FooterLink
+                    href={category._id}
+                    label={category.title || category.slug || "Category"}
+                  />
                 </li>
               ))}
             </ul>

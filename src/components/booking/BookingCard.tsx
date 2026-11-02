@@ -14,7 +14,7 @@ interface BookingCardProps {
 }
 
 export const BookingCard = ({ studioDetails }: BookingCardProps) => {
-  const { hourlyRate, securityDeposit, maxCapacity } = studioDetails;
+  const { hourlyRate = 0, securityDeposit = 0, maxCapacity } = studioDetails;
 
   return (
     <Card className="sticky top-24 border-border/60 shadow-sm">
@@ -33,7 +33,7 @@ export const BookingCard = ({ studioDetails }: BookingCardProps) => {
           <div className="flex items-center gap-3 text-sm">
             <UsersIcon className="size-4 text-muted-foreground shrink-0" />
             <span className="text-foreground/90">
-              Up to {maxCapacity} people max
+              Up to {maxCapacity ?? "—"} people max
             </span>
           </div>
           <div className="flex items-center gap-3 text-sm">
@@ -51,7 +51,7 @@ export const BookingCard = ({ studioDetails }: BookingCardProps) => {
       </CardContent>
 
       <CardFooter className="flex flex-col gap-3">
-        <Button className="w-full font-medium" size="lg">
+        <Button className="w-full font-medium cursor-pointer" size="lg">
           <CalendarIcon className="mr-2 size-4" /> Book Workspace
         </Button>
       </CardFooter>
