@@ -69,7 +69,7 @@ const AddStudioForm = () => {
         description: "Studio added successfully.",
       });
 
-      router.push("/studios");
+      router.push("/my-listings");
     } catch (error) {
       console.error("Failed to submit studio:", error);
 
