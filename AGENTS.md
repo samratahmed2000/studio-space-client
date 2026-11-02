@@ -10,29 +10,44 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # StudioSpace client
 
-Next.js 16.4.3 App Router frontend (client only). The companion API is the sibling repo `../studio-space-server` (Express + MongoDB); nothing in this repo calls it yet. There is no test runner or test script.
+Next.js 16.4.3 App Router frontend. No tests and no CI. The API is the sibling repo `../studio-space-server` (Express 5 + MongoDB, port 8000); this app fetches it directly — there are no mocks.
 
 ## Commands
 
-- `npm run dev` — Turbopack dev server.
-- `npm run build` — production build; also runs TypeScript and prerendering checks.
-- `npx tsc --noEmit` — typecheck only. On a fresh clone (or after adding routes), run `npx next typegen` first: `next-env.d.ts` is gitignored and `PageProps` / `LayoutProps` types are generated into `.next/`.
-- `npm run lint` — ESLint. It currently reports two pre-existing `react-hooks/set-state-in-effect` errors in `src/components/ui/carousel.tsx` and `src/hooks/use-mobile.ts`; don't "fix" them unless the task touches those files.
-- `npx shadcn add <component>` — add UI primitives using the installed CLI and existing `components.json` (`base-nova`, Base UI).
+- `npm run dev` — Turbopack dev server (port 3000).
+- `npm run build` — production build; also runs TypeScript and prerenders `/` and `/studios`, which fetch the API. Start the API or the build fails.
+- `npx next typegen && npx tsc --noEmit` — typecheck. `next-env.d.ts` is gitignored; `next typegen` regenerates it and the route types in `.next/` after a fresh clone or new route.
+- `npm run lint` — `eslint` only (no `--fix` script).
+- `npx shadcn add <component>` — uses the existing `components.json` (`base-nova` style, Base UI, no Radix).
+- No test runner or test script exists; verify with lint and build.
 
-## Layout
+## Known pre-existing failures
 
-- `src/app` — App Router. The root layout (`src/app/layout.tsx`) renders `src/components/shared/Navbar` on every page.
-- `src/components/ui` — generated shadcn components (mostly `"use client"`), keyed by `data-slot`.
-- `src/components/shared` — app-specific components, PascalCase filenames (`Navbar.tsx`).
-- `@/*` maps to `src/*`.
-- `PageProps` / `LayoutProps` are global route helpers — do not import them.
+- `npx tsc --noEmit` and `npm run build` fail on type errors in `BookingCard`, `Footer`, `StudioCategories`, and `StudioCard`. Root cause: `Studio` fields are optional and `Studio.category` is `Category[] | string`; narrow before use instead of casting to `any`.
+- `npm run lint` reports 2 errors (`react-hooks/set-state-in-effect` in `src/components/ui/carousel.tsx` and `src/hooks/use-mobile.ts`) and 1 unused-variable warning. Leave them unless your task touches those files.
+
+## Setup / data flow
+
+- Requires `.env` with `NEXT_PUBLIC_API_URL` (gitignored; currently `http://localhost:8000`).
+- `src/data-fetch/*` are server-side fetch helpers (default exports; `.tsx` files with no JSX) using `next: { revalidate: 60 }`. Async server components call them directly. Because of that cache, `router.refresh()` alone serves stale data after a mutation — invalidate with `revalidatePath` in a server action.
+- Mutations go through the server actions in `src/actions/studioActions.ts` (POST `/add-studio`, PATCH `/studios/:id`), which call `revalidatePath` for `/`, `/studios`, and the edited detail page. Client forms call them from submit handlers, then `router.refresh()` / `router.push()`. There is no form or validation library.
+- The companion API has no dev script: run `npm start` in `../studio-space-server` (plain `node`, needs `MONGODB_URI`).
+
+## Layout / routing
+
+- Routes: `/`, `/studios`, `/studios/[id]`, `/add-studio` (the `(dashboard)` route group adds no URL segment), and a `/studios/edit/[id]` stub. `Navbar` links to `/login` and `/register`, which do not exist.
+- The root layout always renders `Navbar`, `Footer`, and `Toaster`.
+- `src/components/ui` holds generated shadcn primitives; app components live in `src/components/<domain>`; `src/helper` has `Logo` and `NewsletterForm`.
+- `PageProps` / `LayoutProps` are global generated types — don't import them. Next 16 route `params` / `searchParams` are Promises; await them.
+- Shared constants: amenities in `src/lib/amenities.ts`, types in `src/types/type.ts`.
 
 ## Stack gotchas
 
-- `next.config.ts` enables `cacheComponents` and `partialPrefetching`. Uncached async data must sit inside `<Suspense>` or the build fails; use `'use cache'` plus `cacheLife()` for cacheable data. See `node_modules/next/dist/docs/01-app/01-getting-started/08-caching.md`. Links prefetch only the static app shell by default; add `prefetch={true}` when a page needs `params` / `searchParams` prefetched.
+- Base UI, not Radix: compose with `render={<Button />}`; there is no `asChild`.
+- `cn` comes from the `cn` package (`import { cn } from "cn"`); `src/lib/utils.ts` only re-exports it. No clsx/tailwind-merge stack.
+- Tailwind v4 is CSS-first: tokens live in `src/app/globals.css`, there is no `tailwind.config.*` and no PostCSS config. CSS is compiled by the `@tailwindcss/turbopack` rule in `next.config.ts`.
+- `cacheComponents` and `partialPrefetching` are explicitly `false`; don't add `<Suspense>` or `'use cache'` expecting the build to enforce them.
+- `next/image` accepts any HTTPS host (`images.remotePatterns` in `next.config.ts`); studio images are user-supplied URLs.
+- Toasts use Base UI's manager: `toast.add({ title, description })` from `@/components/ui/toast` (not sonner's `toast()`).
+- Shiki languages are registered per-language in `src/lib/highlighter.tsx`; add them there instead of importing the full `shiki` bundle.
 - `experimental.agentFeedback` is enabled, so `next dev` rewrites the managed Next.js block above. Keep that block and commit this file with your changes.
-- UI primitives are Base UI (`@base-ui/react`), not Radix. Compose with `render={<Button />}`; there is no `asChild`.
-- `cn` comes from the `cn` package (`import { cn } from "cn"`). `src/lib/utils.ts` only re-exports it; there is no clsx/tailwind-merge stack.
-- Tailwind v4 is CSS-first: theme tokens live in `src/app/globals.css`, and there is no `tailwind.config.*`. CSS is compiled by the `@tailwindcss/turbopack` rule in `next.config.ts`; don't add a PostCSS config.
-- Shiki is imported per-language in `src/lib/highlighter.tsx`. Register new languages/aliases there instead of importing the full `shiki` bundle.

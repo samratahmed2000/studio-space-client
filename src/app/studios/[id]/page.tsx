@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   CheckIcon,
   ChevronLeftIcon,
-  EditIcon,
   MapPinIcon,
   Trash2Icon,
 } from "lucide-react";
@@ -14,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { BookingCard } from "@/components/booking/BookingCard";
+import EditStudioDetails from "@/components/studio/EditStudioDetails";
 
 const StudioDetailsPage = async ({
   params,
@@ -27,112 +27,12 @@ const StudioDetailsPage = async ({
     studioDetails;
 
   return (
-    // <main className="min-h-screen bg-background border-b border-border/60">
-    //   {/* Full Width Hero Image Frame */}
-    //   <div className="relative w-full h-[80vh] min-h-87.5 max-h-150 border-b border-border/60 bg-muted">
-    //     <Image
-    //       src={imageUrl}
-    //       alt={title}
-    //       fill
-    //       priority
-    //       className="object-cover"
-    //       sizes="100vw"
-    //     />
-
-    //     {/* Dark subtle overlay gradient for cinematic finish */}
-    //     <div className="absolute inset-0 bg-linear-to-t from-background/20 via-transparent to-transparent" />
-    //   </div>
-
-    //   <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-    //     {/* Navigation Actions Row */}
-    //     <div className="flex flex-wrap items-center justify-between">
-    //       <Link
-    //         href="/studios"
-    //         className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-    //       >
-    //         <ChevronLeftIcon className="size-4" />
-    //         Back to Studios
-    //       </Link>
-
-    //       <div className="flex items-center gap-2">
-    //         <Button variant="outline" size="sm" className="h-9 gap-2">
-    //           <EditIcon className="size-3.5" />
-    //           Edit Studio
-    //         </Button>
-    //         <Button variant="destructive" size="sm" className="h-9 gap-2">
-    //           <Trash2Icon className="size-3.5" />
-    //           Delete Studio
-    //         </Button>
-    //       </div>
-    //     </div>
-
-    //     {/* Studio Content Grid */}
-    //     <div className="grid grid-cols-1 gap-8 lg:grid-cols-3 lg:items-start">
-    //       {/* Main Content Details */}
-    //       <div className="lg:col-span-2 space-y-6">
-    //         {/* Typography Header */}
-    //         <div className="space-y-3">
-    //           <Badge
-    //             variant="outline"
-    //             className="h-7 gap-2 rounded-full border-border/70 bg-background px-3 text-xs font-medium text-muted-foreground"
-    //           >
-    //             <span className="size-1.5 rounded-full bg-destructive" />
-    //             {Array.isArray(category) ? category.join(", ") : category}
-    //           </Badge>
-
-    //           <h1 className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl text-foreground">
-    //             {title}
-    //           </h1>
-
-    //           <div className="flex items-center gap-2 text-muted-foreground">
-    //             <MapPinIcon className="size-4 shrink-0 text-destructive" />
-    //             <span className="text-sm font-medium leading-6">
-    //               {location}
-    //             </span>
-    //           </div>
-    //         </div>
-
-    //         <Separator className="my-6" />
-
-    //         {/* Description */}
-    //         <div className="prose prose-lg text-muted-foreground">
-    //           <p>{description}</p>
-    //         </div>
-
-    //         {/* Amenities Section */}
-    //         <div className="space-y-4">
-    //           <h2 className="text-xl font-semibold tracking-tight text-foreground">
-    //             What this space offers
-    //           </h2>
-
-    //           <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-    //             {amenitiesList.map((amenity) => (
-    //               <li
-    //                 key={amenity}
-    //                 className="flex items-center gap-3 text-sm text-muted-foreground border border-border/40 p-3 rounded-xl bg-muted/10"
-    //               >
-    //                 <span className="size-1.5 rounded-full bg-foreground/40" />
-    //                 {amenity}
-    //               </li>
-    //             ))}
-    //           </ul>
-    //         </div>
-    //       </div>
-
-    //       {/* Sticky Sidebar Booking Placement */}
-    //       <aside className="lg:col-span-1">
-    //         <BookingCard studioDetails={studioDetails} />
-    //       </aside>
-    //     </div>
-    //   </div>
-    // </main>
-
     <main className="min-h-screen border-b border-border/60 bg-background">
       {/* Hero Image */}
       <div className="relative h-[55vh] min-h-64 max-h-150 w-full overflow-hidden border-b border-border/60 bg-muted sm:h-[65vh] lg:h-[80vh]">
         <Image
-          src={imageUrl}
-          alt={title}
+          src={imageUrl!}
+          alt={title ?? "Studio image"}
           fill
           priority
           className="object-cover"
@@ -154,10 +54,7 @@ const StudioDetailsPage = async ({
           </Link>
 
           <div className="flex flex-wrap items-center gap-2">
-            <Button variant="outline" size="sm" className="h-9 gap-2">
-              <EditIcon className="size-3.5" />
-              Edit Studio
-            </Button>
+            <EditStudioDetails studioDetails={studioDetails} />
 
             <Button variant="destructive" size="sm" className="h-9 gap-2">
               <Trash2Icon className="size-3.5" />
@@ -206,30 +103,6 @@ const StudioDetailsPage = async ({
             </div>
 
             {/* Amenities */}
-            {/* <div className="space-y-4">
-              <div>
-                <h2 className="text-xl font-semibold tracking-tight text-foreground">
-                  What this space offers
-                </h2>
-
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Everything you need for a seamless creative experience.
-                </p>
-              </div>
-
-              <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                {amenitiesList.map((amenity) => (
-                  <li
-                    key={amenity}
-                    className="flex items-center gap-3 rounded-xl border border-border/60 bg-muted/10 p-3 text-sm text-muted-foreground"
-                  >
-                    <span className="size-1.5 shrink-0 rounded-full bg-foreground/40" />
-                    {amenity}
-                  </li>
-                ))}
-              </ul>
-            </div> */}
-
             <div className="space-y-5">
               <div className="space-y-1">
                 <h2 className="text-xl font-semibold tracking-tight text-foreground">
@@ -241,7 +114,7 @@ const StudioDetailsPage = async ({
               </div>
 
               <ul className="grid grid-cols-1 gap-x-2 gap-y-4 sm:grid-cols-3">
-                {amenitiesList.map((amenity) => (
+                {(amenitiesList ?? []).map((amenity) => (
                   <li
                     key={amenity}
                     className="flex items-center gap-2 text-sm text-muted-foreground"

@@ -38,14 +38,14 @@ const Navbar = () => {
       return pathname === "/" && activeSection === href.split("#")[1];
     }
 
-    return pathname === href || pathname.startsWith(`${href}/`);
+    return pathname === href;
   };
 
   const linkStyle = (href: string) =>
     cn(
       "rounded-full px-3 py-2 text-sm font-medium transition-colors",
       isActive(href)
-        ? "bg-destructive/40 text-black font-semibold"
+        ? "bg-muted-foreground/10 text-black font-semibold"
         : "text-muted-foreground hover:bg-muted hover:text-foreground",
     );
 
