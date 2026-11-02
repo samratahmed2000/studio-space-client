@@ -2,17 +2,11 @@ import getStudioDetailsData from "@/data-fetch/getStudioDetailsData";
 import { Studio } from "@/types/type";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  CheckIcon,
-  ChevronLeftIcon,
-  MapPinIcon,
-} from "lucide-react";
+import { CheckIcon, ChevronLeftIcon, MapPinIcon } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { BookingCard } from "@/components/booking/BookingCard";
-import EditStudioDetails from "@/components/studio/EditStudioDetails";
-import DeleteStudio from "@/components/studio/DeleteStudio";
 
 const StudioDetailsPage = async ({
   params,
@@ -51,14 +45,6 @@ const StudioDetailsPage = async ({
             <ChevronLeftIcon className="size-4" />
             Back to Studios
           </Link>
-
-          <div className="flex flex-wrap items-center gap-2">
-            {/* Edit Studio Details */}
-            <EditStudioDetails studioDetails={studioDetails} />
-
-            {/* Delete Studio */}
-            <DeleteStudio studioDetails={studioDetails} />
-          </div>
         </div>
 
         {/* Studio Content */}

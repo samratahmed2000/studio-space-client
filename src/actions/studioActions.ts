@@ -33,6 +33,7 @@ export async function addStudio(data: StudioPayload): Promise<ActionResult> {
 
     revalidatePath("/");
     revalidatePath("/studios");
+    revalidatePath("/my-listings");
 
     return { success: true };
   } catch (error) {
@@ -66,6 +67,7 @@ export async function updateStudio(
 
     revalidatePath("/");
     revalidatePath("/studios");
+    revalidatePath("/my-listings");
     revalidatePath(`/studios/${id}`);
 
     return { success: true };
@@ -104,6 +106,7 @@ export async function deleteStudio(id: string): Promise<ActionResult> {
 
     revalidatePath("/");
     revalidatePath("/studios");
+    revalidatePath("/my-listings");
 
     return { success: true };
   } catch (error) {

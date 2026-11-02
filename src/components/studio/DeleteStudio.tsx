@@ -20,7 +20,13 @@ import { toast } from "../ui/toast";
 import { Studio } from "@/types/type";
 import { deleteStudio } from "@/actions/studioActions";
 
-const DeleteStudio = ({ studioDetails }: { studioDetails: Studio }) => {
+const DeleteStudio = ({
+  studioDetails,
+  iconOnly = false,
+}: {
+  studioDetails: Studio;
+  iconOnly?: boolean;
+}) => {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -65,11 +71,17 @@ const DeleteStudio = ({ studioDetails }: { studioDetails: Studio }) => {
         render={
           <Button
             variant="destructive"
-            size="sm"
-            className="h-9 gap-2 cursor-pointer"
+            size={iconOnly ? "icon" : "sm"}
+            aria-label={
+              iconOnly ? `Delete ${studioDetails.title ?? "studio"}` : undefined
+            }
+            title={iconOnly ? "Delete studio" : undefined}
+            className={
+              iconOnly ? "cursor-pointer" : "h-9 gap-2 cursor-pointer"
+            }
           >
-            <Trash2Icon className="size-3.5" />
-            Delete Studio
+            <Trash2Icon className={iconOnly ? "size-4" : "size-3.5"} />
+            {!iconOnly && "Delete Studio"}
           </Button>
         }
       />

@@ -119,8 +119,7 @@ const StudioForm = ({
             defaultValue={defaultValues?.hourlyRate ?? ""}
             required
             min="0"
-            step="0.01"
-            placeholder="75"
+            placeholder="1500"
             className="border-border/70 focus-visible:ring-foreground/20"
           />
         </div>
@@ -136,7 +135,6 @@ const StudioForm = ({
             defaultValue={defaultValues?.securityDeposit ?? ""}
             required
             min="0"
-            step="0.01"
             placeholder="200"
             className="border-border/70 focus-visible:ring-foreground/20"
           />

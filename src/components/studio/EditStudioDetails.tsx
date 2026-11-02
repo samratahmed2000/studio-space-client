@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { EditIcon } from "lucide-react";
+import { SquarePenIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "../ui/button";
 import {
@@ -20,9 +20,13 @@ import { updateStudio } from "@/actions/studioActions";
 
 interface EditStudioDetailsProps {
   studioDetails: Studio;
+  iconOnly?: boolean;
 }
 
-const EditStudioDetails = ({ studioDetails }: EditStudioDetailsProps) => {
+const EditStudioDetails = ({
+  studioDetails,
+  iconOnly = false,
+}: EditStudioDetailsProps) => {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -111,9 +115,17 @@ const EditStudioDetails = ({ studioDetails }: EditStudioDetailsProps) => {
     >
       <DialogTrigger
         render={
-          <Button variant="outline" size="lg" className="gap-2 cursor-pointer">
-            <EditIcon className="size-4" />
-            Edit Studio
+          <Button
+            variant="outline"
+            size={iconOnly ? "icon" : "lg"}
+            aria-label={
+              iconOnly ? `Edit ${studioDetails.title ?? "studio"}` : undefined
+            }
+            title={iconOnly ? "Edit studio" : undefined}
+            className={iconOnly ? "cursor-pointer" : "gap-2 cursor-pointer"}
+          >
+            <SquarePenIcon className="size-4" />
+            {!iconOnly && "Edit Studio"}
           </Button>
         }
       />
