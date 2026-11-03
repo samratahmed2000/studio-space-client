@@ -22,3 +22,18 @@ export interface Studio {
   hostEmail?: string;
   hostImage?: string;
 }
+
+export interface Booking {
+  _id: string;
+  studioId?: string;
+  studioTitle?: string;
+  studioLocation?: string;
+  studioImage?: string;
+  bookingDate?: string;
+  startTime?: string;
+  endTime?: string;
+  totalMember?: number;
+  totalAmount?: number;
+  bookingDuration?: number;
+  status?: string;
+}

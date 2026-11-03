@@ -164,7 +164,7 @@ const BookingForm = ({
             securityDeposit,
             totalAmount: totalCost,
             notes: notes.trim() || undefined,
-            status: "confirmed",
+            status: "pending",
             createdAt: new Date().toISOString(),
           }),
         },
