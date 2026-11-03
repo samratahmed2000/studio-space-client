@@ -6,7 +6,7 @@ import { CheckIcon, ChevronLeftIcon, MapPinIcon } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { BookingCard } from "@/components/booking/BookingCard";
+import BookingCard from "@/components/booking/BookingCard";
 
 const StudioDetailsPage = async ({
   params,

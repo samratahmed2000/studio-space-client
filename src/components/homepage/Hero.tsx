@@ -16,32 +16,32 @@ import { cn } from "@/lib/utils";
 
 const heroSlides = [
   {
-    src: "/assets/hero/photography-studio.png",
+    src: "/assets/hero/photography-studio.jpg",
     alt: "Photographer capturing a portrait in a bright studio",
     label: "Photography Studio",
   },
   {
-    src: "/assets/hero/cinema-set.png",
+    src: "/assets/hero/podcast-room.png",
     alt: "Film crew working on a cinema set",
     label: "Cinema Set",
   },
   {
-    src: "/assets/hero/podcast-room.png",
+    src: "/assets/hero/cinema-set.jpg",
     alt: "Podcast studio with microphones and headphones",
     label: "Podcast Room",
   },
   {
-    src: "/assets/hero/music-suites.png",
+    src: "/assets/hero/music-suites.jpg",
     alt: "Music producer working at a recording console",
     label: "Music Suite",
   },
   {
-    src: "/assets/hero/art-workshop.png",
+    src: "/assets/hero/art-studio.png",
     alt: "People creating crafts at an art workshop",
     label: "Art Workshop",
   },
   {
-    src: "/assets/hero/film-show.png",
+    src: "/assets/hero/theater.png",
     alt: "Performers on a lit theatre stage",
     label: "Theatre Stage",
   },

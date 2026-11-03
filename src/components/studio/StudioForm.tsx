@@ -172,6 +172,18 @@ const StudioForm = ({
           placeholder="https://example.com/image.jpg"
           className="border-border/70 focus-visible:ring-foreground/20"
         />
+        <Label htmlFor="imageUrl" className="text-sm font-medium">
+          Add More Image URL<span className="text-destructive">*</span>
+        </Label>
+        <Input
+          id="imageUrl"
+          name="imageUrl"
+          type="url"
+          defaultValue={defaultValues?.imageUrl}
+          required
+          placeholder="https://example.com/image.jpg"
+          className="border-border/70 focus-visible:ring-foreground/20"
+        />
       </div>
 
       {/* Description */}
