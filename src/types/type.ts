@@ -15,6 +15,10 @@ export interface Studio {
   maxCapacity?: number;
   location?: string;
   imageUrl?: string;
+  imageUrls?: string[];
   description?: string;
   amenitiesList?: string[];
+  hostName?: string;
+  hostEmail?: string;
+  hostImage?: string;
 }

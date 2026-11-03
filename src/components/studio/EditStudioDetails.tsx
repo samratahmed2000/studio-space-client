@@ -60,19 +60,33 @@ const EditStudioDetails = ({
     const formData = new FormData(event.currentTarget);
     const studioData = Object.fromEntries(formData.entries());
     const amenitiesList = formData.getAll("amenitiesList").map(String);
+    const imageUrls = formData
+      .getAll("imageUrls")
+      .map(String)
+      .map((url) => url.trim())
+      .filter(Boolean);
 
     if (amenitiesList.length === 0) {
       return;
     }
 
+    const primaryImageUrl =
+      imageUrls[0] || String(studioData.imageUrl || "").trim();
+
     setIsLoading(true);
 
     const updatedData = {
       ...studioData,
+      imageUrl: primaryImageUrl,
+      imageUrls:
+        imageUrls.length > 0 ? imageUrls : [primaryImageUrl].filter(Boolean),
       hourlyRate: Number(studioData.hourlyRate),
       securityDeposit: Number(studioData.securityDeposit),
       maxCapacity: Number(studioData.maxCapacity),
       amenitiesList,
+      hostName: String(studioData.hostName || studioDetails.hostName || "").trim(),
+      hostEmail: String(studioData.hostEmail || studioDetails.hostEmail || "").trim(),
+      hostImage: String(studioData.hostImage || studioDetails.hostImage || "").trim(),
     };
 
     try {

@@ -1,8 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
+import { PlusIcon, Trash2Icon, ImageIcon } from "lucide-react";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
+import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import { Category, Studio } from "@/types/type";
 import { AMENITIES_OPTIONS } from "@/lib/amenities";
@@ -13,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { useSession } from "@/lib/auth-client";
 
 interface StudioFormProps {
   categories: Category[];
@@ -28,6 +32,19 @@ const getCategoryTitle = (category: Studio["category"]) => {
   return category?.[0]?.title ?? "";
 };
 
+const getInitialImages = (defaultValues?: Partial<Studio>): string[] => {
+  if (
+    Array.isArray(defaultValues?.imageUrls) &&
+    defaultValues.imageUrls.length > 0
+  ) {
+    return defaultValues.imageUrls.filter(Boolean);
+  }
+  if (defaultValues?.imageUrl) {
+    return [defaultValues.imageUrl];
+  }
+  return [""];
+};
+
 const StudioForm = ({
   categories,
   defaultValues,
@@ -38,6 +55,10 @@ const StudioForm = ({
     defaultValues?.amenitiesList ?? [],
   );
 
+  const [imageUrls, setImageUrls] = useState<string[]>(() =>
+    getInitialImages(defaultValues),
+  );
+
   const toggleAmenity = (amenity: string) => {
     setSelectedAmenities((current) =>
       current.includes(amenity)
@@ -45,6 +66,30 @@ const StudioForm = ({
         : [...current, amenity],
     );
   };
+
+  const handleImageUrlChange = (index: number, value: string) => {
+    setImageUrls((current) => {
+      const updated = [...current];
+      updated[index] = value;
+      return updated;
+    });
+  };
+
+  const handleAddImageUrl = () => {
+    setImageUrls((current) => [...current, ""]);
+  };
+
+  const handleRemoveImageUrl = (indexToRemove: number) => {
+    setImageUrls((current) => {
+      if (current.length <= 1) return [""];
+      return current.filter((_, idx) => idx !== indexToRemove);
+    });
+  };
+
+  const primaryImage = imageUrls.find((url) => Boolean(url.trim())) || "";
+
+  const { data: session } = useSession();
+  const user = session?.user;
 
   return (
     <div className="grid gap-6">
@@ -119,7 +164,7 @@ const StudioForm = ({
             defaultValue={defaultValues?.hourlyRate ?? ""}
             required
             min="0"
-            placeholder="1500"
+            placeholder="150"
             className="border-border/70 focus-visible:ring-foreground/20"
           />
         </div>
@@ -158,32 +203,88 @@ const StudioForm = ({
         </div>
       </div>
 
-      {/* Image URL */}
-      <div className="grid gap-2">
-        <Label htmlFor="imageUrl" className="text-sm font-medium">
-          Studio Image URL <span className="text-destructive">*</span>
-        </Label>
-        <Input
-          id="imageUrl"
-          name="imageUrl"
-          type="url"
-          defaultValue={defaultValues?.imageUrl}
-          required
-          placeholder="https://example.com/image.jpg"
-          className="border-border/70 focus-visible:ring-foreground/20"
-        />
-        <Label htmlFor="imageUrl" className="text-sm font-medium">
-          Add More Image URL<span className="text-destructive">*</span>
-        </Label>
-        <Input
-          id="imageUrl"
-          name="imageUrl"
-          type="url"
-          defaultValue={defaultValues?.imageUrl}
-          required
-          placeholder="https://example.com/image.jpg"
-          className="border-border/70 focus-visible:ring-foreground/20"
-        />
+      {/* Multiple Image URLs */}
+      <div className="grid gap-3 rounded-xl border border-border/70 p-4 bg-muted/15">
+        <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <Label className="text-sm font-medium text-foreground">
+              Studio Image URLs <span className="text-destructive">*</span>
+            </Label>
+            <p className="text-xs text-muted-foreground">
+              Upload multiple high-resolution photos.
+            </p>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleAddImageUrl}
+            className="gap-1.5 cursor-pointer self-start sm:self-auto font-medium"
+          >
+            <PlusIcon className="size-3.5" />
+            Add Another URL
+          </Button>
+        </div>
+
+        {/* Hidden primary image for backward compatibility */}
+        <input type="hidden" name="imageUrl" value={primaryImage} />
+
+        <div className="space-y-3 pt-1">
+          {imageUrls.map((url, index) => (
+            <div
+              key={index}
+              className="flex flex-col gap-1.5 sm:flex-row sm:items-center"
+            >
+              <div className="flex items-center gap-2">
+                {url.trim() ? (
+                  <div className="relative size-8 shrink-0 overflow-hidden rounded border border-border/80 bg-muted">
+                    <Image
+                      src={url}
+                      alt={`Preview ${index + 1}`}
+                      fill
+                      unoptimized
+                      className="object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className="flex size-8 shrink-0 items-center justify-center rounded border border-border/60 bg-muted/50 text-muted-foreground">
+                    <ImageIcon className="size-3.5 opacity-50" />
+                  </div>
+                )}
+              </div>
+
+              <div className="flex flex-1 items-center gap-2">
+                <Input
+                  name="imageUrls"
+                  type="url"
+                  value={url}
+                  onChange={(e) => handleImageUrlChange(index, e.target.value)}
+                  required={index === 0}
+                  placeholder={
+                    index === 0
+                      ? "https://example.com/primary-cover.jpg"
+                      : "https://example.com/gallery-photo.jpg"
+                  }
+                  className="border-border/70 focus-visible:ring-foreground/20"
+                />
+
+                {imageUrls.length > 1 && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={() => handleRemoveImageUrl(index)}
+                    aria-label={`Remove photo ${index + 1}`}
+                    title="Remove this photo URL"
+                    className="shrink-0 text-muted-foreground hover:text-destructive cursor-pointer"
+                  >
+                    <Trash2Icon className="size-4" />
+                  </Button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Description */}
@@ -200,6 +301,30 @@ const StudioForm = ({
           placeholder="Enter a brief description of the studio..."
           className="border-border/70 focus-visible:ring-foreground/20"
         />
+      </div>
+
+      {/* Host Information */}
+      <div className="grid gap-4 rounded-xl border border-border/70 p-4 bg-muted/15">
+        <div>
+          <Label className="text-sm font-semibold text-foreground">
+            Host Information
+          </Label>
+          <p className="text-xs text-muted-foreground">
+            Information about the space host or manager shown on the studio
+            details page.
+          </p>
+        </div>
+
+        <div className="flex justify-between items-start lg:items-center gap-4 flex-col lg:flex-row">
+          <p className="text-sm font-semibold text-foreground">
+            Host Name:{" "}
+            <span className="text-xs text-muted-foreground">{user?.name}</span>
+          </p>
+          <p className="text-sm font-semibold text-foreground">
+            Host Email:{" "}
+            <span className="text-xs text-muted-foreground">{user?.email}</span>
+          </p>
+        </div>
       </div>
 
       {/* Amenities */}

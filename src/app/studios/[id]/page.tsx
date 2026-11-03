@@ -1,12 +1,27 @@
 import getStudioDetailsData from "@/data-fetch/getStudioDetailsData";
 import { Studio } from "@/types/type";
-import Image from "next/image";
 import Link from "next/link";
-import { CheckIcon, ChevronLeftIcon, MapPinIcon } from "lucide-react";
+import {
+  CheckIcon,
+  ChevronLeftIcon,
+  MapPinIcon,
+  DollarSignIcon,
+  ShieldCheckIcon,
+  UsersIcon,
+} from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import BookingCard from "@/components/booking/BookingCard";
+import StudioImageCarousel from "@/components/studio/StudioImageCarousel";
+import HostInfoCard from "@/components/studio/HostInfoCard";
 
 const StudioDetailsPage = async ({
   params,
@@ -16,24 +31,27 @@ const StudioDetailsPage = async ({
   const { id } = await params;
   const studioDetails: Studio = await getStudioDetailsData({ id });
 
-  const { imageUrl, category, title, location, description, amenitiesList } =
-    studioDetails;
+  const {
+    imageUrl,
+    imageUrls,
+    category,
+    title,
+    location,
+    description,
+    amenitiesList,
+    hourlyRate = 0,
+    securityDeposit = 0,
+    maxCapacity,
+  } = studioDetails;
 
   return (
     <main className="min-h-screen border-b border-border/60 bg-background">
-      {/* Hero Image */}
-      <div className="relative h-[55vh] min-h-64 max-h-150 w-full overflow-hidden border-b border-border/60 bg-muted sm:h-[65vh] lg:h-[80vh]">
-        <Image
-          src={imageUrl!}
-          alt={title ?? "Studio image"}
-          fill
-          priority
-          className="object-cover"
-          sizes="100vw"
-        />
-
-        <div className="absolute inset-0 bg-linear-to-t from-background/20 via-transparent to-transparent" />
-      </div>
+      {/* Studio Image Carousel */}
+      <StudioImageCarousel
+        imageUrl={imageUrl}
+        imageUrls={imageUrls}
+        title={title}
+      />
 
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
         {/* Navigation Actions */}
@@ -73,6 +91,76 @@ const StudioDetailsPage = async ({
               </div>
             </div>
 
+            {/* Overview & Pricing Specs Card */}
+            <Card className="border-border/70 shadow-sm bg-card/60">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base sm:text-lg font-semibold tracking-tight">
+                  Workspace Overview & Pricing
+                </CardTitle>
+                <CardDescription className="text-xs sm:text-sm">
+                  Core booking parameters, hourly rates, and capacity limits.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                  {/* Hourly Rate */}
+                  <div className="flex items-center gap-3 rounded-lg border border-border/70 p-3 bg-muted/20">
+                    <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <DollarSignIcon className="size-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-medium text-muted-foreground">
+                        Hourly Rate
+                      </p>
+                      <p className="text-lg font-bold tracking-tight text-foreground truncate">
+                        ${Number(hourlyRate)}
+                        <span className="text-xs font-normal text-muted-foreground">
+                          /hr
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Security Deposit */}
+                  <div className="flex items-center gap-3 rounded-lg border border-border/70 p-3 bg-muted/20">
+                    <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                      <ShieldCheckIcon className="size-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-medium text-muted-foreground">
+                        Security Deposit
+                      </p>
+                      <p className="text-lg font-bold tracking-tight text-foreground truncate">
+                        ${Number(securityDeposit)}{" "}
+                        <span className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
+                          100% Refundable
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Max Capacity */}
+                  <div className="flex items-center gap-3 rounded-lg border border-border/70 p-3 bg-muted/20">
+                    <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                      <UsersIcon className="size-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-medium text-muted-foreground">
+                        Max Capacity
+                      </p>
+                      <p className="text-lg font-bold tracking-tight text-foreground truncate">
+                        {maxCapacity ?? "—"}
+                        <span className="text-xs font-normal text-muted-foreground">
+                          {" "}
+                          {maxCapacity === 1 ? "Person" : "People"} max
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             <Separator />
 
             {/* Description */}
@@ -81,7 +169,7 @@ const StudioDetailsPage = async ({
                 About this space
               </h2>
 
-              <p className="text-sm leading-7 text-muted-foreground sm:text-base">
+              <p className="text-sm leading-7 text-muted-foreground sm:text-base whitespace-pre-line">
                 {description}
               </p>
             </div>
@@ -113,6 +201,11 @@ const StudioDetailsPage = async ({
                 ))}
               </ul>
             </div>
+
+            <Separator />
+
+            {/* Host Information Card */}
+            <HostInfoCard studioDetails={studioDetails} />
           </div>
 
           {/* Booking Sidebar */}

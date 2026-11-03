@@ -31,7 +31,14 @@ const StudioCard = ({ studio }: { studio: Studio }) => {
     maxCapacity,
     location,
     imageUrl,
+    imageUrls,
   } = studio;
+
+  const displayImage =
+    imageUrl ||
+    (Array.isArray(imageUrls) && imageUrls.length > 0
+      ? imageUrls[0]
+      : undefined);
 
   const categoryLabel = getCategoryLabel(category);
 
@@ -40,9 +47,9 @@ const StudioCard = ({ studio }: { studio: Studio }) => {
       <Card className="group gap-0 overflow-hidden border-border/70 p-0 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
         {/* Studio Image */}
         <div className="relative aspect-4/3 w-full overflow-hidden bg-muted">
-          {imageUrl ? (
+          {displayImage ? (
             <Image
-              src={imageUrl}
+              src={displayImage}
               alt={title || "Image"}
               fill
               priority={true}
