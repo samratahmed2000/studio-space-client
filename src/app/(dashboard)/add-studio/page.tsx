@@ -13,16 +13,15 @@ const AddNewStudioPage = () => {
             aria-hidden="true"
             className="size-1.5 rounded-full bg-destructive"
           />
-          Host Panel
+          Onboard Studio
         </Badge>
 
         <h2 className="mt-4 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
           List a New <span className="text-destructive">Studio</span> Space
         </h2>
 
-        <p className="mt-4 text-base leading-7 text-muted-foreground">
-          Earn revenue by sharing your creative space with directors,
-          photographers, and audio engineers.
+        <p className="mt-1 text-base leading-7 text-muted-foreground">
+          Earn revenue by sharing your creative spaces.
         </p>
       </div>
 

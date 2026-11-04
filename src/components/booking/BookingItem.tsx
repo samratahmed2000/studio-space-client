@@ -51,6 +51,9 @@ const BookingItem = ({ booking }: { booking: Booking }) => {
   const title = booking.studioTitle ?? "Untitled studio";
   const [open, setOpen] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
+  const [status, setStatus] = useState(booking.status ?? "pending");
+  const isCancelled =
+    status.toLowerCase() === "cancelled" || status.toLowerCase() === "canceled";
 
   const handleCancelBooking = async () => {
     setIsCancelling(true);
@@ -58,14 +61,19 @@ const BookingItem = ({ booking }: { booking: Booking }) => {
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/my-bookings/${booking._id}`,
-        { method: "DELETE" },
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "cancelled" }),
+        },
       );
       const result = await response.json();
 
-      if (!response.ok || result.deletedCount === 0) {
+      if (!response.ok || result.matchedCount === 0) {
         throw new Error(result.message || "Unable to cancel this booking.");
       }
 
+      setStatus("cancelled");
       toast.add({
         type: "success",
         title: "Booking Cancelled",
@@ -113,8 +121,11 @@ const BookingItem = ({ booking }: { booking: Booking }) => {
                 <h2 className="text-xl font-semibold tracking-tight">
                   {title}
                 </h2>
-                <Badge variant="destructive" className="text-xs">
-                  Pending
+                <Badge
+                  variant={isCancelled ? "outline" : "destructive"}
+                  className={`text-xs ${isCancelled ? "text-green-600 border-green-600 hover:bg-green-50" : ""}`}
+                >
+                  {isCancelled ? "Cancelled" : "Pending"}
                 </Badge>
               </div>
               <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
@@ -165,45 +176,49 @@ const BookingItem = ({ booking }: { booking: Booking }) => {
                 <ArrowUpRightIcon />
               </Link>
             )}
-            <AlertDialog
-              open={open}
-              onOpenChange={(value) => {
-                if (!isCancelling) setOpen(value);
-              }}
-            >
-              <AlertDialogTrigger
-                render={
-                  <Button variant="destructive" size="sm">
-                    Cancel
-                  </Button>
-                }
-              />
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogMedia className="bg-destructive/10 text-destructive">
-                    <Trash2Icon />
-                  </AlertDialogMedia>
-                  <AlertDialogTitle>Cancel this booking?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Your pending reservation for{" "}
-                    <span className="font-medium text-foreground">{title}</span>{" "}
-                    will be permanently removed.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel disabled={isCancelling}>
-                    Keep Booking
-                  </AlertDialogCancel>
-                  <AlertDialogAction
-                    variant="destructive"
-                    disabled={isCancelling}
-                    onClick={handleCancelBooking}
-                  >
-                    {isCancelling ? "Cancelling..." : "Cancel Booking"}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            {!isCancelled && (
+              <AlertDialog
+                open={open}
+                onOpenChange={(value) => {
+                  if (!isCancelling) setOpen(value);
+                }}
+              >
+                <AlertDialogTrigger
+                  render={
+                    <Button variant="destructive" size="sm">
+                      Cancel
+                    </Button>
+                  }
+                />
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogMedia className="bg-destructive/10 text-destructive">
+                      <Trash2Icon />
+                    </AlertDialogMedia>
+                    <AlertDialogTitle>Cancel this booking?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Your pending reservation for{" "}
+                      <span className="font-medium text-foreground">
+                        {title}
+                      </span>{" "}
+                      will be marked as cancelled.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel disabled={isCancelling}>
+                      Keep Booking
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      variant="destructive"
+                      disabled={isCancelling}
+                      onClick={handleCancelBooking}
+                    >
+                      {isCancelling ? "Cancelling..." : "Cancel Booking"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
           </div>
         </div>
       </CardContent>
