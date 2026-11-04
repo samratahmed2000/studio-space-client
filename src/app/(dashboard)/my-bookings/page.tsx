@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CalendarDaysIcon } from "lucide-react";
 import { auth } from "@/lib/auth";
+import { getTokenFromServer } from "@/lib/getTokenFromServer";
 import { headers } from "next/headers";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
@@ -19,13 +20,22 @@ const MyStudioBookedPage = async () => {
   let bookings: Booking[] = [];
 
   if (user?.email) {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/my-bookings/${encodeURIComponent(user.email)}`,
-      { cache: "no-store" },
-    );
+    const token = await getTokenFromServer();
 
-    if (response.ok) {
-      bookings = await response.json();
+    if (token) {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/my-bookings/${encodeURIComponent(user.email)}`,
+        {
+          cache: "no-store",
+          headers: {
+            authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (response.ok) {
+        bookings = await response.json();
+      }
     }
   }
 

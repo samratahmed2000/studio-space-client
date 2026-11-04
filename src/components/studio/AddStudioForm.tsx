@@ -8,15 +8,19 @@ import { toast } from "../ui/toast";
 import StudioForm from "./StudioForm";
 import { Category } from "@/types/type";
 import getCategory from "@/data-fetch/getCategoryData";
+import { getTokenFromClient } from "@/lib/getTokenFromClient";
 
 const addStudio = async (studioData: Record<string, unknown>) => {
   try {
+    const token = await getTokenFromClient();
+
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/add-studio`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(studioData),
       },
@@ -27,8 +31,14 @@ const addStudio = async (studioData: Record<string, unknown>) => {
     }
 
     return { success: true, message: "" };
-  } catch {
-    return { success: false, message: "Could not reach the studio API." };
+  } catch (error) {
+    return {
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Could not reach the studio API.",
+    };
   }
 };
 
@@ -87,6 +97,7 @@ const AddStudioForm = () => {
     setIsLoading(true);
 
     const user = session?.user;
+
     const submissionData = {
       title: studioData.title,
       category: studioData.category,

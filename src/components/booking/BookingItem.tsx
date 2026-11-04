@@ -29,6 +29,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "@/components/ui/toast";
+import { getTokenFromClient } from "@/lib/getTokenFromClient";
 
 const formatCurrency = (amount?: number) =>
   amount == null
@@ -59,11 +60,16 @@ const BookingItem = ({ booking }: { booking: Booking }) => {
     setIsCancelling(true);
 
     try {
+      const token = await getTokenFromClient();
+
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/my-bookings/${booking._id}`,
         {
           method: "PATCH",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${token}`,
+          },
           body: JSON.stringify({ status: "cancelled" }),
         },
       );

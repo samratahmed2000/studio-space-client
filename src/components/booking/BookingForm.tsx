@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "@/components/ui/toast";
+import { getTokenFromClient } from "@/lib/getTokenFromClient";
 
 export interface BookingFormProps {
   studioDetails: Studio;
@@ -139,11 +140,16 @@ const BookingForm = ({
     setIsLoading(true);
 
     try {
+      const token = await getTokenFromClient();
+
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/booking`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${token}`,
+          },
           body: JSON.stringify({
             userId: user.id,
             userName: user.name,

@@ -16,18 +16,22 @@ import { toast } from "../ui/toast";
 import StudioForm from "./StudioForm";
 import { Category, Studio } from "@/types/type";
 import getCategory from "@/data-fetch/getCategoryData";
+import { getTokenFromClient } from "@/lib/getTokenFromClient";
 
 const updateStudio = async (
   id: string,
   studioData: Record<string, unknown>,
 ) => {
   try {
+    const token = await getTokenFromClient();
+
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/studios/${id}`,
       {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(studioData),
       },
@@ -38,8 +42,14 @@ const updateStudio = async (
     }
 
     return { success: true, message: "" };
-  } catch {
-    return { success: false, message: "Could not reach the studio API." };
+  } catch (error) {
+    return {
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Could not reach the studio API.",
+    };
   }
 };
 

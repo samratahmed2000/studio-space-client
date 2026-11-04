@@ -18,13 +18,19 @@ import {
 } from "../ui/alert-dialog";
 import { toast } from "../ui/toast";
 import { Studio } from "@/types/type";
+import { getTokenFromClient } from "@/lib/getTokenFromClient";
 
 const deleteStudio = async (id: string) => {
   try {
+    const token = await getTokenFromClient();
+
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/studios/${id}`,
       {
         method: "DELETE",
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
       },
     );
 
@@ -42,8 +48,14 @@ const deleteStudio = async (id: string) => {
     }
 
     return { success: true, message: "" };
-  } catch {
-    return { success: false, message: "Could not reach the studio API." };
+  } catch (error) {
+    return {
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Could not reach the studio API.",
+    };
   }
 };
 
