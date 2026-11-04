@@ -8,9 +8,11 @@ import {
   ArrowUpRightIcon,
   CalendarDaysIcon,
   ClockIcon,
+  Loader2Icon,
   MapPinIcon,
   Trash2Icon,
   UsersIcon,
+  XIcon,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -52,9 +54,56 @@ const BookingItem = ({ booking }: { booking: Booking }) => {
   const title = booking.studioTitle ?? "Untitled studio";
   const [open, setOpen] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
+  const [isRemoving, setIsRemoving] = useState(false);
+  const [isRemoved, setIsRemoved] = useState(false);
   const [status, setStatus] = useState(booking.status ?? "pending");
   const isCancelled =
     status.toLowerCase() === "cancelled" || status.toLowerCase() === "canceled";
+
+  const handleRemoveBooking = async () => {
+    if (isRemoving) return;
+
+    setIsRemoving(true);
+
+    try {
+      const token = await getTokenFromClient();
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/my-bookings/${booking._id}`,
+        {
+          method: "DELETE",
+          headers: {
+            authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      const result: { deletedCount?: number; message?: string } =
+        await response.json();
+
+      if (!response.ok || result.deletedCount === 0) {
+        throw new Error(result.message || "Unable to remove this booking.");
+      }
+
+      setIsRemoved(true);
+      toast.add({
+        type: "success",
+        title: "Booking Removed",
+        description: `The cancelled reservation for "${title}" has been removed.`,
+      });
+      router.refresh();
+    } catch (error) {
+      toast.add({
+        type: "error",
+        title: "Remove Booking Failed",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Something went wrong. Please try again.",
+      });
+      setIsRemoving(false);
+    }
+  };
 
   const handleCancelBooking = async () => {
     setIsCancelling(true);
@@ -100,6 +149,10 @@ const BookingItem = ({ booking }: { booking: Booking }) => {
       setIsCancelling(false);
     }
   };
+
+  if (isRemoved) {
+    return null;
+  }
 
   return (
     <Card className="w-full py-0">
@@ -182,6 +235,26 @@ const BookingItem = ({ booking }: { booking: Booking }) => {
                 <ArrowUpRightIcon />
               </Link>
             )}
+
+            {isCancelled && (
+              <Button
+                type="button"
+                variant="outline"
+                size="icon-sm"
+                onClick={handleRemoveBooking}
+                disabled={isRemoving}
+                aria-label={`Remove cancelled booking for ${title}`}
+                title="Remove booking"
+                className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+              >
+                {isRemoving ? (
+                  <Loader2Icon className="size-3.5 animate-spin" />
+                ) : (
+                  <XIcon className="size-3.5" />
+                )}
+              </Button>
+            )}
+
             {!isCancelled && (
               <AlertDialog
                 open={open}
