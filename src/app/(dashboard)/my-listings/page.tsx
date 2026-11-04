@@ -23,6 +23,8 @@ export const metadata: Metadata = {
   description: "Manage the studio spaces you have published on StudioSpace.",
 };
 
+export const dynamic = "force-dynamic";
+
 const getCategoryLabel = (category: Studio["category"]) => {
   if (Array.isArray(category)) {
     return category
@@ -36,6 +38,131 @@ const getCategoryLabel = (category: Studio["category"]) => {
 
 const formatCurrency = (value?: number) =>
   value == null ? "—" : `$${value.toLocaleString("en-US")}`;
+
+const StudioActions = ({
+  studio,
+  title,
+  withViewLabel = false,
+}: {
+  studio: Studio;
+  title: string;
+  withViewLabel?: boolean;
+}) => (
+  <div className="flex items-center justify-end gap-1.5">
+    <Link
+      href={`/studios/${studio._id}`}
+      aria-label={withViewLabel ? undefined : `View ${title}`}
+      title={withViewLabel ? undefined : "View studio"}
+      className={buttonVariants({
+        variant: "outline",
+        size: withViewLabel ? "lg" : "icon",
+        className: withViewLabel ? "flex-1 gap-1.5" : undefined,
+      })}
+    >
+      {withViewLabel && "View Studio"}
+      <ArrowUpRightIcon className="size-4" />
+    </Link>
+
+    <EditStudioDetails studioDetails={studio} iconOnly />
+
+    <DeleteStudio studioDetails={studio} iconOnly />
+  </div>
+);
+
+const StudioMobileCard = ({ studio }: { studio: Studio }) => {
+  const title = studio.title ?? "Untitled studio";
+  const categoryLabel = getCategoryLabel(studio.category);
+
+  return (
+    <article className="overflow-hidden rounded-xl border border-border/70 bg-card shadow-sm">
+      {/* Image, Title, Location */}
+      <div className="flex gap-3 p-4">
+        <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-muted">
+          {studio.imageUrl ? (
+            <Image
+              src={studio.imageUrl}
+              alt={studio.title ?? "Studio image"}
+              fill
+              sizes="96px"
+              className="object-cover"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-[10px] text-muted-foreground">
+              No image
+            </div>
+          )}
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <Link
+            href={`/studios/${studio._id}`}
+            className="line-clamp-2 font-semibold tracking-tight underline-offset-4 hover:underline"
+          >
+            {title}
+          </Link>
+
+          <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+            <MapPinIcon className="size-3.5 shrink-0" />
+            <span className="line-clamp-1">
+              {studio.location ?? "Location not set"}
+            </span>
+          </p>
+
+          <Badge
+            variant="secondary"
+            className="mt-2 max-w-full truncate rounded-full font-normal"
+          >
+            {categoryLabel || "Uncategorized"}
+          </Badge>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <dl className="grid grid-cols-3 divide-x divide-border/70 border-t border-border/70 bg-muted/20 text-center">
+        <div className="min-w-0 px-2 py-3">
+          <dt className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+            Rate
+          </dt>
+          <dd className="mt-0.5 truncate text-sm font-semibold tabular-nums">
+            {studio.hourlyRate == null ? (
+              "—"
+            ) : (
+              <>
+                {formatCurrency(studio.hourlyRate)}
+                <span className="text-xs font-normal text-muted-foreground">
+                  /hr
+                </span>
+              </>
+            )}
+          </dd>
+        </div>
+
+        <div className="min-w-0 px-2 py-3">
+          <dt className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+            Deposit
+          </dt>
+          <dd className="mt-0.5 truncate text-sm font-semibold tabular-nums">
+            {formatCurrency(studio.securityDeposit)}
+          </dd>
+        </div>
+
+        <div className="min-w-0 px-2 py-3">
+          <dt className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+            Capacity
+          </dt>
+          <dd className="mt-0.5 truncate text-sm font-semibold tabular-nums">
+            {studio.maxCapacity ?? "—"}
+          </dd>
+        </div>
+      </dl>
+
+      {/* Actions */}
+      <div className="border-t border-border/70 p-3">
+        <StudioActions studio={studio} title={title} withViewLabel />
+      </div>
+    </article>
+  );
+};
 
 const MyStudioListedPage = async () => {
   const studios: Studio[] = await getStudiosData();
@@ -67,7 +194,13 @@ const MyStudioListedPage = async () => {
             </p>
           </div>
 
-          <Link href="/add-studio" className={buttonVariants({ size: "lg" })}>
+          <Link
+            href="/add-studio"
+            className={buttonVariants({
+              size: "lg",
+              className: "w-full sm:w-auto",
+            })}
+          >
             <PlusIcon />
             Add New Studio
           </Link>
@@ -84,132 +217,125 @@ const MyStudioListedPage = async () => {
           </p>
         </div>
 
-        {/* Studio Table */}
         {studios.length > 0 ? (
-          <div className="mt-6 overflow-hidden rounded-xl border border-border/70">
-            <Table className="min-w-4xl">
-              <TableCaption className="sr-only">
-                List of your published studios
-              </TableCaption>
+          <>
+            {/* Mobile / tablet cards */}
+            <div className="mt-6 space-y-4 lg:hidden">
+              {studios.map((studio) => (
+                <StudioMobileCard key={studio._id} studio={studio} />
+              ))}
+            </div>
 
-              <TableHeader className="bg-muted/50">
-                <TableRow>
-                  <TableHead className="h-11 px-4">Studio</TableHead>
-                  <TableHead className="h-11 px-4">Category</TableHead>
-                  <TableHead className="h-11 px-4 text-right">
-                    Hourly Rate
-                  </TableHead>
-                  <TableHead className="h-11 px-4 text-right">
-                    Deposit
-                  </TableHead>
-                  <TableHead className="h-11 px-4 text-right">
-                    Capacity
-                  </TableHead>
-                  <TableHead className="h-11 px-4 text-right">
-                    Actions
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
+            {/* Desktop table */}
+            <div className="mt-6 hidden overflow-hidden rounded-xl border border-border/70 lg:block">
+              <Table className="min-w-4xl">
+                <TableCaption className="sr-only">
+                  List of your published studios
+                </TableCaption>
 
-              <TableBody>
-                {studios.map((studio) => {
-                  const title = studio.title ?? "Untitled studio";
-                  const categoryLabel = getCategoryLabel(studio.category);
+                <TableHeader className="bg-muted/50">
+                  <TableRow>
+                    <TableHead className="h-11 px-4">Studio</TableHead>
+                    <TableHead className="h-11 px-4">Category</TableHead>
+                    <TableHead className="h-11 px-4 text-right">
+                      Hourly Rate
+                    </TableHead>
+                    <TableHead className="h-11 px-4 text-right">
+                      Deposit
+                    </TableHead>
+                    <TableHead className="h-11 px-4 text-right">
+                      Capacity
+                    </TableHead>
+                    <TableHead className="h-11 px-4 text-right">
+                      Actions
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
 
-                  return (
-                    <TableRow key={studio._id}>
-                      {/* Image, Title, Location */}
-                      <TableCell className="px-4 py-3 whitespace-normal">
-                        <div className="flex items-center gap-3">
-                          <div className="relative h-14 w-20 shrink-0 overflow-hidden rounded-lg bg-muted">
-                            {studio.imageUrl ? (
-                              <Image
-                                src={studio.imageUrl}
-                                alt={studio.title ?? "Studio image"}
-                                fill
-                                sizes="80px"
-                                className="object-cover"
-                              />
-                            ) : (
-                              <div className="flex h-full w-full items-center justify-center text-[10px] text-muted-foreground">
-                                No image
-                              </div>
-                            )}
+                <TableBody>
+                  {studios.map((studio) => {
+                    const title = studio.title ?? "Untitled studio";
+                    const categoryLabel = getCategoryLabel(studio.category);
+
+                    return (
+                      <TableRow key={studio._id}>
+                        {/* Image, Title, Location */}
+                        <TableCell className="px-4 py-3 whitespace-normal">
+                          <div className="flex items-center gap-3">
+                            <div className="relative h-14 w-20 shrink-0 overflow-hidden rounded-lg bg-muted">
+                              {studio.imageUrl ? (
+                                <Image
+                                  src={studio.imageUrl}
+                                  alt={studio.title ?? "Studio image"}
+                                  fill
+                                  sizes="80px"
+                                  className="object-cover"
+                                />
+                              ) : (
+                                <div className="flex h-full w-full items-center justify-center text-[10px] text-muted-foreground">
+                                  No image
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="min-w-0">
+                              <Link
+                                href={`/studios/${studio._id}`}
+                                className="line-clamp-1 max-w-64 font-medium tracking-tight underline-offset-4 hover:underline"
+                              >
+                                {title}
+                              </Link>
+
+                              <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+                                <MapPinIcon className="size-3.5 shrink-0" />
+                                <span className="line-clamp-1">
+                                  {studio.location ?? "Location not set"}
+                                </span>
+                              </p>
+                            </div>
                           </div>
+                        </TableCell>
 
-                          <div className="min-w-0">
-                            <Link
-                              href={`/studios/${studio._id}`}
-                              className="line-clamp-1 max-w-64 font-medium tracking-tight underline-offset-4 hover:underline"
-                            >
-                              {title}
-                            </Link>
+                        {/* Category */}
+                        <TableCell className="px-4 text-muted-foreground">
+                          {categoryLabel || "—"}
+                        </TableCell>
 
-                            <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
-                              <MapPinIcon className="size-3.5 shrink-0" />
-                              <span className="line-clamp-1">
-                                {studio.location ?? "Location not set"}
+                        {/* Hourly Rate */}
+                        <TableCell className="px-4 text-right tabular-nums">
+                          {studio.hourlyRate == null ? (
+                            "—"
+                          ) : (
+                            <>
+                              <span className="font-medium">
+                                {formatCurrency(studio.hourlyRate)}
                               </span>
-                            </p>
-                          </div>
-                        </div>
-                      </TableCell>
+                              <span className="text-muted-foreground">/hr</span>
+                            </>
+                          )}
+                        </TableCell>
 
-                      {/* Category */}
-                      <TableCell className="px-4 text-muted-foreground">
-                        {categoryLabel || "—"}
-                      </TableCell>
+                        {/* Security Deposit */}
+                        <TableCell className="px-4 text-right tabular-nums">
+                          {formatCurrency(studio.securityDeposit)}
+                        </TableCell>
 
-                      {/* Hourly Rate */}
-                      <TableCell className="px-4 text-right tabular-nums">
-                        {studio.hourlyRate == null ? (
-                          "—"
-                        ) : (
-                          <>
-                            <span className="font-medium">
-                              {formatCurrency(studio.hourlyRate)}
-                            </span>
-                            <span className="text-muted-foreground">/hr</span>
-                          </>
-                        )}
-                      </TableCell>
+                        {/* Capacity */}
+                        <TableCell className="px-4 text-right tabular-nums">
+                          {studio.maxCapacity ?? "—"}
+                        </TableCell>
 
-                      {/* Security Deposit */}
-                      <TableCell className="px-4 text-right tabular-nums">
-                        {formatCurrency(studio.securityDeposit)}
-                      </TableCell>
-
-                      {/* Capacity */}
-                      <TableCell className="px-4 text-right tabular-nums">
-                        {studio.maxCapacity ?? "—"}
-                      </TableCell>
-
-                      {/* Actions */}
-                      <TableCell className="px-4">
-                        <div className="flex items-center justify-end gap-1.5">
-                          <Link
-                            href={`/studios/${studio._id}`}
-                            aria-label={`View ${title}`}
-                            title="View studio"
-                            className={buttonVariants({
-                              variant: "outline",
-                              size: "icon",
-                            })}
-                          >
-                            <ArrowUpRightIcon className="size-4" />
-                          </Link>
-
-                          <EditStudioDetails studioDetails={studio} iconOnly />
-
-                          <DeleteStudio studioDetails={studio} iconOnly />
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </div>
+                        {/* Actions */}
+                        <TableCell className="px-4">
+                          <StudioActions studio={studio} title={title} />
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          </>
         ) : (
           <div className="mt-6 flex min-h-64 flex-col items-center justify-center rounded-xl border border-dashed border-border p-8 text-center">
             <h2 className="text-lg font-semibold">No studios listed yet</h2>

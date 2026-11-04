@@ -8,6 +8,7 @@ import { Button } from "../ui/button";
 import { ArrowUpRight, Clock, MapPin, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { WishlistButton } from "../wishlist-studio/WishlistButton";
 
 const getCategoryLabel = (category: Studio["category"]) => {
   if (Array.isArray(category)) {
@@ -65,11 +66,16 @@ const StudioCard = ({ studio }: { studio: Studio }) => {
           {categoryLabel && (
             <Badge
               variant="secondary"
-              className="absolute left-4 top-4 rounded-full bg-background/90 px-3 backdrop-blur-sm"
+              className="absolute left-4 top-4 max-w-[calc(100%-4.5rem)] truncate rounded-full bg-background/90 px-3 backdrop-blur-sm"
             >
               {categoryLabel}
             </Badge>
           )}
+
+          <WishlistButton
+            studio={studio}
+            className="absolute right-3 top-3 z-10"
+          />
         </div>
 
         {/* Studio Information */}

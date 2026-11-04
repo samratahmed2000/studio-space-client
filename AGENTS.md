@@ -15,7 +15,7 @@ Next.js 16.4.3 App Router frontend. No tests and no CI. The API is the sibling r
 ## Commands
 
 - `npm run dev` — Turbopack dev server (port 3000).
-- `npm run build` — production build; also runs TypeScript and prerenders `/` and `/studios`, which fetch the API. Start the API or the build fails.
+- `npm run build` — production build; also runs TypeScript. Studio pages fetch with `cache: "no-store"` and render per request, so the API does not need to be running at build time, but it must be up at runtime.
 - `npx next typegen && npx tsc --noEmit` — typecheck. `next-env.d.ts` is gitignored; `next typegen` regenerates it and the route types in `.next/` after a fresh clone or new route.
 - `npm run lint` — `eslint` only (no `--fix` script).
 - `npx shadcn add <component>` — uses the existing `components.json` (`base-nova` style, Base UI, no Radix).
@@ -28,8 +28,8 @@ Next.js 16.4.3 App Router frontend. No tests and no CI. The API is the sibling r
 ## Setup / data flow
 
 - Requires `.env` with `NEXT_PUBLIC_API_URL` (gitignored; currently `http://localhost:8000`).
-- `src/data-fetch/*` are server-side fetch helpers (default exports; `.tsx` files with no JSX) using `next: { revalidate: 60 }`. Async server components call them directly. Because of that cache, `router.refresh()` alone serves stale data after a mutation — invalidate with `revalidatePath` in a server action.
-- Mutations go through the server actions in `src/actions/studioActions.ts` (POST `/add-studio`, PATCH `/studios/:id`, DELETE `/studios/:id`), which call `revalidatePath` for `/`, `/studios`, and (for updates) the edited detail page. Client components call them from handlers, then `router.refresh()` / `router.push()`. There is no form or validation library.
+- `src/data-fetch/*` are server-side fetch helpers (default exports; `.tsx` files with no JSX) using `cache: "no-store"`. Async server components call them directly. Studio data is therefore never served from a 60s cache, and pages that read it render dynamically. `router.refresh()` after a mutation is enough to show fresh data; `revalidatePath` is not needed for these client-side fetches.
+- Mutations are done with client-side `fetch` calls inside `src/components/studio/*` and `src/components/booking/*` (POST `/add-studio`, PATCH/DELETE `/studios/:id`, POST `/booking`, PATCH `/my-bookings/:id`), authenticated with `getTokenFromClient()`. After success, handlers call `router.push()` + `router.refresh()` (or update local state) so the UI updates immediately. There is no form or validation library.
 - The companion API has no dev script: run `npm start` in `../studio-space-server` (plain `node`, needs `MONGODB_URI`).
 
 ## Layout / routing
@@ -37,6 +37,7 @@ Next.js 16.4.3 App Router frontend. No tests and no CI. The API is the sibling r
 - Routes: `/`, `/studios`, `/studios/[id]`, `/add-studio`, and `/login` + `/register` (the `(dashboard)` and `(auth)` route groups add no URL segment).
 - Auth is better-auth mounted at `/api/auth/[...all]` (`src/lib/auth.ts`, Mongo adapter); client helpers come from `src/lib/auth-client.ts`. Auth forms live in `src/components/auth/`; password rules are in `src/lib/validation.ts` and must stay in sync with `emailAndPassword.minPasswordLength`. Google login only works when `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` are set.
 - Private routes are guarded by `src/proxy.ts`, which sends logged-out visitors to `/register?redirectTo=<path>` and remembers the path in the `studio-space-redirect` cookie. Registration signs the user out, sends them to `/login` (keeping `redirectTo`), and login returns them to that path; the Navbar profile dropdown only renders once a session exists. `src/lib/redirect.ts` sanitizes `redirectTo` against open redirects.
+- Wishlist is DB-backed: the heart on `StudioCard` (`src/components/studio/WishlistButton.tsx`) calls `GET/POST/DELETE /studio-wishlist` on the companion API through `src/hooks/use-wishlist.ts`, authenticated with the current session token. The server resolves the user from the JWT and stores `{ email, studioId, createdAt }`; the wishlist page renders saved studios through `WishlistStudioCard`.
 - The root layout always renders `Navbar`, `Footer`, and `Toaster`.
 - `src/components/ui` holds generated shadcn primitives; app components live in `src/components/<domain>`; `src/helper` has `Logo` and `NewsletterForm`.
 - `PageProps` / `LayoutProps` are global generated types — don't import them. Next 16 route `params` / `searchParams` are Promises; await them.

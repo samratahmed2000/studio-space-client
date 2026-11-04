@@ -36,7 +36,9 @@ const Navbar = () => {
         </div>
 
         {/* Mobile Navigation */}
-        <div className="md:hidden">
+        <div className="md:hidden flex gap-2">
+          <ModeToggle />
+
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger
               render={

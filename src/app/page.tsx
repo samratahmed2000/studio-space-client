@@ -4,6 +4,8 @@ import Hero from "@/components/homepage/Hero";
 import HowItWorks from "@/components/homepage/HowItWorks";
 import StudioCategories from "@/components/studio-category/StudioCategories";
 
+export const dynamic = "force-dynamic";
+
 const Homepage = () => {
   return (
     <main className="flex-1">

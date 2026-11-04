@@ -3,9 +3,7 @@ const getStudioDetailsData = async ({ id }: { id: string }) => {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/studios/${id}`,
       {
-        next: {
-          revalidate: 60,
-        },
+        cache: "no-store",
       },
     );
 

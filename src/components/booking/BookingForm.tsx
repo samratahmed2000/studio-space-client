@@ -42,6 +42,20 @@ const getToday = () => {
   return `${year}-${month}-${date}`;
 };
 
+const getDateTime = (date: string, time: string) => {
+  if (!date || !time) return null;
+
+  const [year, month, day] = date.split("-").map(Number);
+  const [hours, minutes] = time.split(":").map(Number);
+
+  if ([year, month, day, hours, minutes].some(Number.isNaN)) {
+    return null;
+  }
+
+  const value = new Date(year, month - 1, day, hours, minutes, 0, 0);
+  return Number.isNaN(value.getTime()) ? null : value;
+};
+
 const formatPrice = (amount: number) => `$${Number(amount || 0).toFixed(2)}`;
 
 const formatDisplayDate = (dateString: string) => {
@@ -113,13 +127,35 @@ const BookingForm = ({
       return;
     }
 
-    if (!bookingDate || bookingDate < minDate) {
-      setError("Please select a valid booking date.");
+    const today = getToday();
+
+    if (!bookingDate || bookingDate < today) {
+      const message = "Please select a valid booking date.";
+      setError(message);
+      toast.add({
+        type: "error",
+        title: "Invalid Booking Date",
+        description: message,
+      });
       return;
     }
 
     if (!startTime || !endTime || endMinutes <= startMinutes) {
       setError("End time must be later than start time.");
+      return;
+    }
+
+    const startsAt = getDateTime(bookingDate, startTime);
+
+    if (!startsAt || startsAt.getTime() <= Date.now()) {
+      const message =
+        "This time has already passed. Please choose a future time slot.";
+      setError(message);
+      toast.add({
+        type: "error",
+        title: "Booking Time Passed",
+        description: message,
+      });
       return;
     }
 

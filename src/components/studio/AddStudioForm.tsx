@@ -132,6 +132,7 @@ const AddStudioForm = () => {
       });
 
       router.push("/my-listings");
+      router.refresh();
     } catch (error) {
       console.error("Failed to submit studio:", error);
 

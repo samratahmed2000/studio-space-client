@@ -95,6 +95,7 @@ const DeleteStudio = ({
     setOpen(false);
     setIsDeleting(false);
     router.push("/my-listings");
+    router.refresh();
   };
 
   return (
