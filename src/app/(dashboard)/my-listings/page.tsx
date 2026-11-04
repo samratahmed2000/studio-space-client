@@ -38,7 +38,7 @@ const formatCurrency = (value?: number) =>
   value == null ? "—" : `$${value.toLocaleString("en-US")}`;
 
 const MyStudioListedPage = async () => {
-  const studios: Studio[] = await getStudiosData({ fresh: true });
+  const studios: Studio[] = await getStudiosData();
 
   return (
     <main className="min-h-screen">

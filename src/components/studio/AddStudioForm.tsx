@@ -8,7 +8,29 @@ import { toast } from "../ui/toast";
 import StudioForm from "./StudioForm";
 import { Category } from "@/types/type";
 import getCategory from "@/data-fetch/getCategoryData";
-import { addStudio } from "@/actions/studioActions";
+
+const addStudio = async (studioData: Record<string, unknown>) => {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/add-studio`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(studioData),
+      },
+    );
+
+    if (!response.ok) {
+      return { success: false, message: "Failed to add studio" };
+    }
+
+    return { success: true, message: "" };
+  } catch {
+    return { success: false, message: "Could not reach the studio API." };
+  }
+};
 
 const AddStudioForm = () => {
   const router = useRouter();
@@ -56,7 +78,8 @@ const AddStudioForm = () => {
     if (!primaryImageUrl) {
       toast.add({
         title: "Image required",
-        description: "Please provide at least one valid image URL for your studio.",
+        description:
+          "Please provide at least one valid image URL for your studio.",
       });
       return;
     }
@@ -76,8 +99,12 @@ const AddStudioForm = () => {
       maxCapacity: Number(studioData.maxCapacity),
       amenitiesList,
       description: studioData.description,
-      hostName: String(studioData.hostName || user?.name || "Studio Host").trim(),
-      hostEmail: String(studioData.hostEmail || user?.email || "host@studiospace.com").trim(),
+      hostName: String(
+        studioData.hostName || user?.name || "Studio Host",
+      ).trim(),
+      hostEmail: String(
+        studioData.hostEmail || user?.email || "host@studiospace.com",
+      ).trim(),
       hostImage: String(studioData.hostImage || user?.image || "").trim(),
     };
 

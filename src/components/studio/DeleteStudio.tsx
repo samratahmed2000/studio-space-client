@@ -18,7 +18,34 @@ import {
 } from "../ui/alert-dialog";
 import { toast } from "../ui/toast";
 import { Studio } from "@/types/type";
-import { deleteStudio } from "@/actions/studioActions";
+
+const deleteStudio = async (id: string) => {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/studios/${id}`,
+      {
+        method: "DELETE",
+      },
+    );
+
+    if (!response.ok) {
+      return { success: false, message: "Failed to delete studio" };
+    }
+
+    const data: { deletedCount?: number } = await response.json();
+
+    if (data.deletedCount === 0) {
+      return {
+        success: false,
+        message: "Studio not found or already deleted.",
+      };
+    }
+
+    return { success: true, message: "" };
+  } catch {
+    return { success: false, message: "Could not reach the studio API." };
+  }
+};
 
 const DeleteStudio = ({
   studioDetails,

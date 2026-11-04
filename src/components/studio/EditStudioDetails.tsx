@@ -16,7 +16,32 @@ import { toast } from "../ui/toast";
 import StudioForm from "./StudioForm";
 import { Category, Studio } from "@/types/type";
 import getCategory from "@/data-fetch/getCategoryData";
-import { updateStudio } from "@/actions/studioActions";
+
+const updateStudio = async (
+  id: string,
+  studioData: Record<string, unknown>,
+) => {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/studios/${id}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(studioData),
+      },
+    );
+
+    if (!response.ok) {
+      return { success: false, message: "Failed to update studio" };
+    }
+
+    return { success: true, message: "" };
+  } catch {
+    return { success: false, message: "Could not reach the studio API." };
+  }
+};
 
 interface EditStudioDetailsProps {
   studioDetails: Studio;
@@ -84,9 +109,15 @@ const EditStudioDetails = ({
       securityDeposit: Number(studioData.securityDeposit),
       maxCapacity: Number(studioData.maxCapacity),
       amenitiesList,
-      hostName: String(studioData.hostName || studioDetails.hostName || "").trim(),
-      hostEmail: String(studioData.hostEmail || studioDetails.hostEmail || "").trim(),
-      hostImage: String(studioData.hostImage || studioDetails.hostImage || "").trim(),
+      hostName: String(
+        studioData.hostName || studioDetails.hostName || "",
+      ).trim(),
+      hostEmail: String(
+        studioData.hostEmail || studioDetails.hostEmail || "",
+      ).trim(),
+      hostImage: String(
+        studioData.hostImage || studioDetails.hostImage || "",
+      ).trim(),
     };
 
     try {
