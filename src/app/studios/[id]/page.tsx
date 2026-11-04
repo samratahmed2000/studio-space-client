@@ -1,6 +1,8 @@
 import getStudioDetailsData from "@/data-fetch/getStudioDetailsData";
-import { Studio } from "@/types/type";
+import type { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
+import { cache } from "react";
 import {
   CheckIcon,
   ChevronLeftIcon,
@@ -23,13 +25,42 @@ import BookingCard from "@/components/booking/BookingCard";
 import StudioImageCarousel from "@/components/studio/StudioImageCarousel";
 import HostInfoCard from "@/components/studio/HostInfoCard";
 
+const getStudio = cache((id: string) => getStudioDetailsData({ id }));
+
+export const generateMetadata = async ({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> => {
+  const { id } = await params;
+  const studio = await getStudio(id);
+
+  if (!studio) {
+    notFound();
+  }
+
+  const title = studio.title || "Studio Details";
+  const description =
+    studio.description?.trim().slice(0, 160) ||
+    `View details, amenities, and hourly pricing for ${title} on StudioSpace.`;
+
+  return {
+    title: `${title} | StudioSpace`,
+    description,
+  };
+};
+
 const StudioDetailsPage = async ({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) => {
   const { id } = await params;
-  const studioDetails: Studio = await getStudioDetailsData({ id });
+  const studioDetails = await getStudio(id);
+
+  if (!studioDetails) {
+    notFound();
+  }
 
   const {
     imageUrl,
