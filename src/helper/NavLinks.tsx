@@ -37,7 +37,7 @@ const NavLinks = ({ variant = "desktop", onNavigate }: NavLinksProps) => {
     cn(
       "rounded-full px-3 py-2 text-sm font-medium transition-colors",
       isActive(href)
-        ? "bg-muted-foreground/10 text-black font-semibold"
+        ? "bg-muted-foreground/10 font-semibold"
         : "text-muted-foreground hover:bg-muted hover:text-foreground",
     );
 

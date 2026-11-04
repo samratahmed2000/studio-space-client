@@ -107,8 +107,6 @@ const RegisterForm = ({ redirectTo }: RegisterFormProps) => {
         description: "Your account is ready. Please log in to continue.",
       });
 
-      // better-auth signs the user in right after registering. Sign them out
-      // so the profile menu only appears after an explicit login.
       await signOut();
 
       router.push(loginHref);

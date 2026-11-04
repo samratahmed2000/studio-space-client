@@ -15,6 +15,7 @@ import NavLinks from "../../helper/NavLinks";
 import UserProfileDropdown, {
   UserProfilePanel,
 } from "../../helper/UserProfileDropdown";
+import { ModeToggle } from "@/helper/ModeToggle";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -30,6 +31,7 @@ const Navbar = () => {
 
         {/* Desktop Auth / User Profile */}
         <div className="hidden items-center gap-2 md:flex">
+          <ModeToggle />
           <UserProfileDropdown />
         </div>
 
