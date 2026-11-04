@@ -112,6 +112,12 @@ const BookingForm = ({
   const perMemberCost = memberCount > 0 ? bookingAmount / memberCount : 0;
   const totalCost = bookingAmount + securityDeposit;
   const minDate = getToday();
+  const isOwner = Boolean(
+    session?.user?.email &&
+      studioDetails.hostEmail &&
+      session.user.email.trim().toLowerCase() ===
+        studioDetails.hostEmail.trim().toLowerCase(),
+  );
 
   const handleBooking = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -124,6 +130,17 @@ const BookingForm = ({
     if (!user) {
       setError("Please sign in before confirming your booking.");
       router.push(`/login?redirectTo=/studios/${_id}`);
+      return;
+    }
+
+    if (isOwner) {
+      const message = "You cannot book your own studio.";
+      setError(message);
+      toast.add({
+        type: "error",
+        title: "Booking Not Allowed",
+        description: message,
+      });
       return;
     }
 

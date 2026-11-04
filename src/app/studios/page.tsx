@@ -2,7 +2,10 @@ import StudioCard from "@/components/studio/StudioCard";
 import StudioSearch from "@/components/studio/StudioSearch";
 import { Badge } from "@/components/ui/badge";
 import getStudiosData from "@/data-fetch/getStudiosData";
+import { auth } from "@/lib/auth";
 import { Studio } from "@/types/type";
+import { headers } from "next/headers";
+import Link from "next/link";
 
 const getCategoryText = (category: Studio["category"]) => {
   if (Array.isArray(category)) {
@@ -32,10 +35,23 @@ const AllStudiosPage = async ({ searchParams }: PageProps<"/studios">) => {
   const { search } = await searchParams;
   const query = typeof search === "string" ? search.trim() : "";
 
-  const studios: Studio[] = await getStudiosData();
-  const filteredStudios = query
-    ? studios.filter((studio) => matchesSearch(studio, query))
+  const [studios, session] = await Promise.all([
+    getStudiosData() as Promise<Studio[]>,
+    auth.api.getSession({ headers: await headers() }),
+  ]);
+
+  const viewerEmail = session?.user?.email?.trim().toLowerCase();
+  const availableStudios = viewerEmail
+    ? studios.filter(
+        (studio) =>
+          studio.hostEmail?.trim().toLowerCase() !== viewerEmail,
+      )
     : studios;
+  const hiddenStudioCount = studios.length - availableStudios.length;
+
+  const filteredStudios = query
+    ? availableStudios.filter((studio) => matchesSearch(studio, query))
+    : availableStudios;
 
   return (
     <main className="min-h-screen">
@@ -87,12 +103,25 @@ const AllStudiosPage = async ({ searchParams }: PageProps<"/studios">) => {
               <>
                 Total{" "}
                 <span className="font-semibold text-foreground">
-                  {studios.length}
+                  {availableStudios.length}
                 </span>{" "}
                 studios
               </>
             )}
           </p>
+
+          {hiddenStudioCount > 0 && (
+            <p className="text-xs text-muted-foreground">
+              Your own {hiddenStudioCount === 1 ? "studio is" : "studios are"}{" "}
+              hidden here.{" "}
+              <Link
+                href="/my-listings"
+                className="font-medium text-foreground underline-offset-4 hover:underline"
+              >
+                Manage listings
+              </Link>
+            </p>
+          )}
         </div>
 
         {/* Studio Grid */}
@@ -108,7 +137,9 @@ const AllStudiosPage = async ({ searchParams }: PageProps<"/studios">) => {
             <p className="mt-2 max-w-md text-sm text-muted-foreground">
               {query
                 ? `We couldn't find any studios matching “${query}”. Try a different search.`
-                : "There are no studios available at the moment. Please check back later."}
+                : hiddenStudioCount > 0
+                  ? "Your own studios are hidden from this view. Check your listings to manage them."
+                  : "There are no studios available at the moment. Please check back later."}
             </p>
           </div>
         )}

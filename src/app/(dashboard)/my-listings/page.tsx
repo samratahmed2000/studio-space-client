@@ -15,8 +15,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import getStudiosData from "@/data-fetch/getStudiosData";
+import getMyStudiosData from "@/data-fetch/getMyStudiosData";
+import { auth } from "@/lib/auth";
+import { getTokenFromServer } from "@/lib/getTokenFromServer";
 import { Studio } from "@/types/type";
+import { headers } from "next/headers";
 
 export const metadata: Metadata = {
   title: "My Studio Listings | StudioSpace",
@@ -165,7 +168,17 @@ const StudioMobileCard = ({ studio }: { studio: Studio }) => {
 };
 
 const MyStudioListedPage = async () => {
-  const studios: Studio[] = await getStudiosData();
+  const session = await auth.api.getSession({ headers: await headers() });
+  const user = session?.user;
+  let studios: Studio[] = [];
+
+  if (user?.email) {
+    const token = await getTokenFromServer();
+
+    if (token) {
+      studios = await getMyStudiosData(token);
+    }
+  }
 
   return (
     <main className="min-h-screen">

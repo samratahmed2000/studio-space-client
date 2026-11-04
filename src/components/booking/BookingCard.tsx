@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   CalendarIcon,
@@ -55,7 +56,18 @@ const BookingCard = ({
     maxCapacity,
   } = studioDetails;
 
+  const isOwner = Boolean(
+    session?.user?.email &&
+      studioDetails.hostEmail &&
+      session.user.email.trim().toLowerCase() ===
+        studioDetails.hostEmail.trim().toLowerCase(),
+  );
+
   const handleBookingClick = () => {
+    if (isOwner) {
+      return;
+    }
+
     if (!session?.user) {
       router.push(`/login?redirectTo=/studios/${_id}`);
       return;
@@ -80,8 +92,14 @@ const BookingCard = ({
             </div>
 
             <Badge variant="secondary" className="gap-1 font-normal text-xs">
-              <SparklesIcon className="size-3 text-amber-500 fill-amber-500" />
-              Instant Book
+              {isOwner ? (
+                "Your Studio"
+              ) : (
+                <>
+                  <SparklesIcon className="size-3 text-amber-500 fill-amber-500" />
+                  Instant Book
+                </>
+              )}
             </Badge>
           </div>
 
@@ -144,18 +162,45 @@ const BookingCard = ({
         </CardContent>
 
         <CardFooter className="flex flex-col gap-2.5 pt-2">
-          <Button
-            className="w-full font-medium cursor-pointer"
-            size="lg"
-            onClick={handleBookingClick}
-          >
-            <CalendarIcon className="mr-2 size-4" /> Book Workspace
-          </Button>
+          {isOwner ? (
+            <>
+              <Button
+                className="w-full font-medium"
+                size="lg"
+                disabled
+                aria-disabled="true"
+              >
+                <InfoIcon className="mr-2 size-4" />
+                You Can&apos;t Book Your Own Studio
+              </Button>
 
-          <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
-            <ShieldCheckIcon className="size-3.5 text-muted-foreground" />
-            <span>No payment charged until reservation is confirmed</span>
-          </div>
+              <p className="text-center text-xs text-muted-foreground">
+                This space belongs to your account. You can manage it from{" "}
+                <Link
+                  href="/my-listings"
+                  className="font-medium text-foreground underline-offset-4 hover:underline"
+                >
+                  My Listings
+                </Link>
+                .
+              </p>
+            </>
+          ) : (
+            <>
+              <Button
+                className="w-full font-medium cursor-pointer"
+                size="lg"
+                onClick={handleBookingClick}
+              >
+                <CalendarIcon className="mr-2 size-4" /> Book Workspace
+              </Button>
+
+              <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+                <ShieldCheckIcon className="size-3.5 text-muted-foreground" />
+                <span>No payment charged until reservation is confirmed</span>
+              </div>
+            </>
+          )}
         </CardFooter>
       </Card>
 
