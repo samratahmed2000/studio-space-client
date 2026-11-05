@@ -5,6 +5,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import StudioCategoryCard from "./StudioCategoryCard";
 import getCategory from "@/data-fetch/getCategoryData";
+import { getCategoryHref } from "@/lib/category";
 
 const StudioCategories = async () => {
   const categories = await getCategory();
@@ -57,10 +58,7 @@ const StudioCategories = async () => {
         {/* Category Grid */}
         <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
           {categories.map((category) => {
-            const categoryName = category.title ?? category.slug ?? "";
-            const href = categoryName
-              ? `/studios?search=${encodeURIComponent(categoryName)}`
-              : "/studios";
+            const href = getCategoryHref(category);
 
             return (
               <Link

@@ -33,6 +33,76 @@ import {
 import { toast } from "@/components/ui/toast";
 import { getTokenFromClient } from "@/lib/getTokenFromClient";
 
+type BookingStatus = "pending" | "confirmed" | "completed" | "cancelled";
+
+const STATUS_CONFIG: Record<
+  BookingStatus,
+  { label: string; badgeClassName: string }
+> = {
+  pending: {
+    label: "Pending",
+    badgeClassName:
+      "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400",
+  },
+  confirmed: {
+    label: "Confirmed",
+    badgeClassName:
+      "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
+  },
+  completed: {
+    label: "Completed",
+    badgeClassName:
+      "border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-400",
+  },
+  cancelled: {
+    label: "Cancelled",
+    badgeClassName: "border-border bg-muted text-muted-foreground",
+  },
+};
+
+const normalizeStatus = (status?: string): BookingStatus => {
+  const value = (status ?? "pending").trim().toLowerCase();
+
+  if (value === "canceled") return "cancelled";
+  if (value === "confirmed" || value === "completed" || value === "cancelled") {
+    return value;
+  }
+
+  return "pending";
+};
+
+const getBookingEnd = (booking: Booking) => {
+  if (!booking.bookingDate || !booking.endTime) return null;
+
+  const [year, month, day] = booking.bookingDate.split("-").map(Number);
+  const [hours, minutes] = booking.endTime.split(":").map(Number);
+
+  if ([year, month, day, hours, minutes].some(Number.isNaN)) {
+    return null;
+  }
+
+  const end = new Date(year, month - 1, day, hours, minutes, 0, 0);
+  return Number.isNaN(end.getTime()) ? null : end;
+};
+
+const resolveStatus = (booking: Booking): BookingStatus => {
+  const storedStatus = normalizeStatus(booking.status);
+
+  // Cancelled or already-completed bookings keep their stored state.
+  if (storedStatus === "cancelled" || storedStatus === "completed") {
+    return storedStatus;
+  }
+
+  const endsAt = getBookingEnd(booking);
+
+  // Once the booked slot has ended, the reservation is effectively completed.
+  if (endsAt && endsAt.getTime() < Date.now()) {
+    return "completed";
+  }
+
+  return storedStatus;
+};
+
 const formatCurrency = (amount?: number) =>
   amount == null
     ? "—"
@@ -56,9 +126,12 @@ const BookingItem = ({ booking }: { booking: Booking }) => {
   const [isCancelling, setIsCancelling] = useState(false);
   const [isRemoving, setIsRemoving] = useState(false);
   const [isRemoved, setIsRemoved] = useState(false);
-  const [status, setStatus] = useState(booking.status ?? "pending");
-  const isCancelled =
-    status.toLowerCase() === "cancelled" || status.toLowerCase() === "canceled";
+  const [status, setStatus] = useState<BookingStatus>(() =>
+    resolveStatus(booking),
+  );
+  const statusConfig = STATUS_CONFIG[status];
+  const isCancelled = status === "cancelled";
+  const canCancel = status === "pending";
 
   const handleRemoveBooking = async () => {
     if (isRemoving) return;
@@ -181,10 +254,10 @@ const BookingItem = ({ booking }: { booking: Booking }) => {
                   {title}
                 </h2>
                 <Badge
-                  variant={isCancelled ? "outline" : "destructive"}
-                  className={`text-xs ${isCancelled ? "text-green-600 border-green-600 hover:bg-green-50" : ""}`}
+                  variant="outline"
+                  className={`text-xs ${statusConfig.badgeClassName}`}
                 >
-                  {isCancelled ? "Cancelled" : "Pending"}
+                  {statusConfig.label}
                 </Badge>
               </div>
               <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
@@ -255,7 +328,7 @@ const BookingItem = ({ booking }: { booking: Booking }) => {
               </Button>
             )}
 
-            {!isCancelled && (
+            {canCancel && (
               <AlertDialog
                 open={open}
                 onOpenChange={(value) => {

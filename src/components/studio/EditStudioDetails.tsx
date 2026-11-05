@@ -56,11 +56,13 @@ const updateStudio = async (
 interface EditStudioDetailsProps {
   studioDetails: Studio;
   iconOnly?: boolean;
+  className?: string;
 }
 
 const EditStudioDetails = ({
   studioDetails,
   iconOnly = false,
+  className,
 }: EditStudioDetailsProps) => {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -177,7 +179,7 @@ const EditStudioDetails = ({
               iconOnly ? `Edit ${studioDetails.title ?? "studio"}` : undefined
             }
             title={iconOnly ? "Edit studio" : undefined}
-            className={iconOnly ? "cursor-pointer" : "gap-2 cursor-pointer"}
+            className={`${iconOnly ? "cursor-pointer" : "gap-2 cursor-pointer"} ${className ?? ""}`}
           >
             <SquarePenIcon className="size-4" />
             {!iconOnly && "Edit Studio"}

@@ -1,6 +1,8 @@
 import getStudioDetailsData from "@/data-fetch/getStudioDetailsData";
+import getStudioRatings from "@/data-fetch/getStudioRatings";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import {
@@ -24,6 +26,9 @@ import {
 import BookingCard from "@/components/booking/BookingCard";
 import StudioImageCarousel from "@/components/studio/StudioImageCarousel";
 import HostInfoCard from "@/components/studio/HostInfoCard";
+import EditStudioDetails from "@/components/studio/EditStudioDetails";
+import StudioRatingCard from "@/components/studio/StudioRatingCard";
+import { auth } from "@/lib/auth";
 
 const getStudio = cache((id: string) => getStudioDetailsData({ id }));
 
@@ -62,6 +67,15 @@ const StudioDetailsPage = async ({
     notFound();
   }
 
+  const session = await auth.api.getSession({ headers: await headers() });
+  const viewerEmail = session?.user?.email?.trim().toLowerCase();
+  const isOwner = Boolean(
+    viewerEmail &&
+      studioDetails.hostEmail?.trim().toLowerCase() === viewerEmail,
+  );
+
+  const { ratings, viewerRating } = await getStudioRatings(studioDetails._id);
+
   const {
     imageUrl,
     imageUrls,
@@ -94,12 +108,25 @@ const StudioDetailsPage = async ({
             <ChevronLeftIcon className="size-4" />
             Back to Studios
           </Link>
+
+          {isOwner && (
+            <EditStudioDetails
+              studioDetails={studioDetails}
+              className="w-full sm:w-auto"
+            />
+          )}
         </div>
 
         {/* Studio Content */}
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3 lg:items-start lg:gap-10">
+        <div
+          className={`grid grid-cols-1 gap-8 lg:items-start lg:gap-10 ${
+            isOwner ? "lg:grid-cols-1" : "lg:grid-cols-3"
+          }`}
+        >
           {/* Main Details */}
-          <div className="min-w-0 space-y-8 lg:col-span-2">
+          <div
+            className={`min-w-0 space-y-8 ${isOwner ? "" : "lg:col-span-2"}`}
+          >
             {/* Studio Header */}
             <div className="space-y-3">
               <Badge
@@ -200,7 +227,7 @@ const StudioDetailsPage = async ({
                 About this space
               </h2>
 
-              <p className="text-sm leading-7 text-muted-foreground sm:text-base whitespace-pre-line">
+              <p className="text-sm leading-5 text-muted-foreground sm:text-base whitespace-pre-line">
                 {description}
               </p>
             </div>
@@ -235,14 +262,26 @@ const StudioDetailsPage = async ({
 
             <Separator />
 
+            {/* Ratings (visible to everyone except the studio's owner) */}
+            {!isOwner && (
+              <StudioRatingCard
+                studioId={studioDetails._id}
+                ratings={ratings}
+                viewerRating={viewerRating}
+                isLoggedIn={Boolean(session?.user)}
+              />
+            )}
+
             {/* Host Information Card */}
             <HostInfoCard studioDetails={studioDetails} />
           </div>
 
-          {/* Booking Sidebar */}
-          <aside className="min-w-0 lg:sticky lg:top-24 lg:col-span-1">
-            <BookingCard studioDetails={studioDetails} />
-          </aside>
+          {/* Booking Sidebar (hidden for the host's own studio) */}
+          {!isOwner && (
+            <aside className="min-w-0 lg:sticky lg:top-24 lg:col-span-1">
+              <BookingCard studioDetails={studioDetails} />
+            </aside>
+          )}
         </div>
       </div>
     </main>

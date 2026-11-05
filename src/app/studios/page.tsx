@@ -5,7 +5,6 @@ import getStudiosData from "@/data-fetch/getStudiosData";
 import { auth } from "@/lib/auth";
 import { Studio } from "@/types/type";
 import { headers } from "next/headers";
-import Link from "next/link";
 
 const getCategoryText = (category: Studio["category"]) => {
   if (Array.isArray(category)) {
@@ -43,8 +42,7 @@ const AllStudiosPage = async ({ searchParams }: PageProps<"/studios">) => {
   const viewerEmail = session?.user?.email?.trim().toLowerCase();
   const availableStudios = viewerEmail
     ? studios.filter(
-        (studio) =>
-          studio.hostEmail?.trim().toLowerCase() !== viewerEmail,
+        (studio) => studio.hostEmail?.trim().toLowerCase() !== viewerEmail,
       )
     : studios;
   const hiddenStudioCount = studios.length - availableStudios.length;
@@ -109,19 +107,6 @@ const AllStudiosPage = async ({ searchParams }: PageProps<"/studios">) => {
               </>
             )}
           </p>
-
-          {hiddenStudioCount > 0 && (
-            <p className="text-xs text-muted-foreground">
-              Your own {hiddenStudioCount === 1 ? "studio is" : "studios are"}{" "}
-              hidden here.{" "}
-              <Link
-                href="/my-listings"
-                className="font-medium text-foreground underline-offset-4 hover:underline"
-              >
-                Manage listings
-              </Link>
-            </p>
-          )}
         </div>
 
         {/* Studio Grid */}

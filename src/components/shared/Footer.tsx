@@ -4,6 +4,7 @@ import Logo from "../../helper/Logo";
 import SocialLinks from "./SocialLinks";
 import NewsletterForm from "@/helper/NewsletterForm";
 import getCategory from "@/data-fetch/getCategoryData";
+import { getCategoryHref } from "@/lib/category";
 
 const navigation = [
   { label: "Home", href: "/" },
@@ -74,7 +75,7 @@ const Footer = async () => {
               {popularCategories.map((category) => (
                 <li key={category._id}>
                   <FooterLink
-                    href={category._id}
+                    href={getCategoryHref(category)}
                     label={category.title || category.slug || "Category"}
                   />
                 </li>

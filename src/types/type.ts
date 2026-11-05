@@ -21,6 +21,15 @@ export interface Studio {
   hostName?: string;
   hostEmail?: string;
   hostImage?: string;
+  ratings?: Array<{ rating: number }>;
+}
+
+export interface StudioRating {
+  _id?: string;
+  studioId?: string;
+  userName?: string;
+  rating: number;
+  createdAt?: string;
 }
 
 export interface Booking {
